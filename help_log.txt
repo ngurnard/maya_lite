@@ -1,0 +1,23 @@
+----------------------------------------------------------------------
+QUESTION AND ANSWERS ONLINE
+----------------------------------------------------------------------
+Question 1:
+What is the ^ operator in C++?
+Answer (Oct 13, 13:00)
+It is the XOR operator found on c++ documentation ONLINE
+
+Question 2:
+What is an enum in c++?
+Answer (Oct 13, 14:00)
+It is a way to basically enumerate a set of variables so they are easily hashable
+
+Question 3:
+I kept getting an undefined reference to my stating count variable in my classes. What is going on?
+Answer (Oct 13, 16:00)
+https://stackoverflow.com/questions/16284629/undefined-reference-to-static-variable-c
+https://stackoverflow.com/questions/39886349/cannot-assign-to-non-static-data-member-within-const-member-function
+
+
+----------------------------------------------------------------------
+COLLABORATORS
+----------------------------------------------------------------------
