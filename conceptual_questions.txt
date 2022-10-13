@@ -1,0 +1,12 @@
+Question 1 (5 pts) 
+Given a mesh with all of its half-edges created but none of its SYM pointers set, what is the minimum information needed to determine which half-edge should be the SYM of some other half-edge?
+
+The minimum information needed to determine which half-edge should be the SYM of some other half-edge are the vertices before and after each half edge. If one were to make a hash map of the half edges with their vertices, then every half edge can be paired with a half edge that shares the same vertices before and after.
+
+Question 2 (5 pts) 
+Which function in the Drawable class determines the primitives (i.e. triangles, lines, or points) with which a given mesh will be drawn? What does Drawable::elemCount return, and where is this value used?
+
+virtual GLenum drawMode(); is the function in the Drawable class that determines the primitives with which a given mesh will be drawn.
+returning GL_TRIANGLES; draws triangles while GL_LINES would draw a wireframe mesh because it would not fill in the triangles.
+
+Drawable::elemCount returns the number of indices stored in the index buffer (count variable), which is the VBO that stores the triangle indices for the mesh.
