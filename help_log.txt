@@ -17,6 +17,23 @@ Answer (Oct 13, 16:00)
 https://stackoverflow.com/questions/16284629/undefined-reference-to-static-variable-c
 https://stackoverflow.com/questions/39886349/cannot-assign-to-non-static-data-member-within-const-member-function
 
+Question 4
+How do I read in a file in c++?
+Answer (Oct 13, 2022)
+https://www.youtube.com/watch?v=Ru7Tump8fKY&ab_channel=LearningLad
+
+Question 5
+How do I load ignore a character in an stringstream?
+Answer (Oct 13, 22:21)
+https://stackoverflow.com/questions/60131007/how-to-ignore-certain-characters-in-an-input-stream
+https://stackoverflow.com/questions/36790838/ignoring-the-input-character
+I used the second one with the "ppek" solution
+
+Question 6
+How to a make random numbers in c++?
+Answer (Oct 13, 23:09)
+https://stackoverflow.com/questions/7560114/random-number-c-in-some-range
+
 
 ----------------------------------------------------------------------
 COLLABORATORS

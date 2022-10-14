@@ -1,4 +1,5 @@
 # pragma once
+#include "loadobj.h"
 # include <drawable.h>
 # include <smartpointerhelp.h>
 # include <face.h>
@@ -13,7 +14,12 @@ private:
 
 public:
 
-    // Constructor/Destructor
+    // Constructors/Destructors
+    Mesh(OpenGLContext*); // default constructor
+//    Mesh(OpenGLContext* context); // default constructor
+
+    // Need to invoke the loading on an obj
+    LoadOBJ load_obj(const char* file_name);
 
     // Implement virtual function create()
 
