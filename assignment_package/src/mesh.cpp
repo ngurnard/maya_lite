@@ -6,26 +6,20 @@
 # include "smartpointerhelp.h"
 
 Mesh::Mesh(OpenGLContext *context)
-    : Drawable(context), faces(), verts(), hes()
+    : Drawable(context), faces(), vertices(), halfEdges()
 {}
 
-void Mesh::load_obj(const char* file_name)
+glm::vec3 genRandColor()
 {
     // This is to generate random numbers for colors
     std::random_device rd; // obtain a random number from hardware
     std::mt19937 gen(rd()); // seed the generator
     std::uniform_int_distribution<> distr(0, 255); // define the range
+    return glm::vec3(distr(gen), distr(gen), distr(gen));
+}
 
-    // vertex data
-    std::vector<glm::vec3> vert_pos; // position coords
-    std::vector<glm::vec2> vert_uv; // texture coords
-    std::vector<glm::vec3> vert_nor; // normal coords
-
-    // face data
-    std::vector<GLint> vert_pos_idx; // position coords indices
-    std::vector<GLint> vert_uv_idx; // texture coords indices
-    std::vector<GLint> vert_nor_idx; // normal coords indices
-
+void Mesh::load_obj(const char* file_name)
+{
     std::ifstream input_file(file_name); // input file object
 
     // Make sure the file is read correctly, else throw error
@@ -36,95 +30,106 @@ void Mesh::load_obj(const char* file_name)
     }
 
     std::stringstream strstream; // initialize empty string stream object
-    std::string current_line = ""; // current line in reading the file
+    std::string line = ""; // current line in reading the file
     std::string prefix = ""; // the first bit of the line (such as v, vt, f) from the OBJ
 
     // This is temporary
     glm::vec3 temp_pos;
-    glm::vec3 temp_nor;
-    glm::vec2 temp_uv;
     GLint temp_glint = 0;
 
-    // These are purely for storing stuff in load_obj. Not for use outside of load_obj
-    // Position is the only one used in this assignment
-    std::vector<glm::vec3> position;
-    std::vector<glm::vec3> color;
-    std::vector<glm::vec2> uv_coord;
-    std::vector<glm::vec3> normal;
-
-
     // While not at the end of the file, read line by line
-    while(std::getline(input_file, current_line))
+    while(std::getline(input_file, line))
     {
+        // Reset the faces vertex idx vector
+        std::vector<GLint> vert_pos_idx; // position coords indices
 
         // Set up the string stream with the current line
         strstream.clear(); // be sure to clear the string stream for each line
-        strstream.str(current_line); // set the current line as the string stream
+        strstream.str(line); // set the current line as the string stream
         strstream >> prefix; // set the prefix
 
         // Check what the prefix is, and do something based on the prefix. If unrecognized, do nothing
         if (prefix == "v") // if it is a vertex prefix
         {
+            // Populate the temp vec3 for position
             strstream >> temp_pos.x >> temp_pos.y >> temp_pos.z; // get the x,y,z of the vertex pos
-            position.push_back(temp_pos); // store in the vector
-        }
-        else if (prefix == "vt") // if it is a texture prefix
-        {
-            strstream >> temp_uv.x >> temp_uv.y;
-            uv_coord.push_back(temp_uv);
-        }
-        else if (prefix == "vn") // if it is a normal prefix
-        {
-            strstream >> temp_nor.x >> temp_nor.y >> temp_nor.z; // get the x,y,z of the vertex normal
-            normal.push_back(temp_nor); // put into the vertex normal vector
+            // Put the vertex in the verts uPtr vector
+            uPtr<Vertex> vptr = mkU<Vertex>(temp_pos); // instantiate vert and make unique ptr to it
+            this->vertices.push_back(std::move(vptr)); // put the uPtr in the verts list
         }
         else if (prefix == "f") // if it is a face prefix
         {
-            int count = 0;
+            // Instatiate a face object
+            uPtr<Face> f = mkU<Face>();
+
+            int counter = 0; // to only grab the first part
             while (strstream >> temp_glint)
             {
-                // Populate the indices vectors with the appropriate GLint
-                if (count == 0) // if the first part of the face X/X/X it is a vert pos
+                if (counter == 0)
                 {
+                    // Populate the indices vectors with the appropriate GLint
                     vert_pos_idx.push_back(temp_glint);
                 }
-                else if (count == 1) // if the second part of the face X/X/X it is a uv coord
-                {
-                    vert_uv_idx.push_back(temp_glint);
-                }
-                else if (count == 2) // if the third part of the face X/X/X it is a vert nor
-                {
-                    vert_nor_idx.push_back(temp_glint);
-                }
 
-                // Ignore the slash cahracters in the faces
-                if (strstream.peek() == '/') // peek looks ahead without popping from the stream
+                // Increment the counter such that we only get the fist part of each str for face
+                if (strstream.peek() == '/')
                 {
-                    ++count; // increment the count
+                    ++counter;
                     strstream.ignore(1, '/');
                 }
-                else if (strstream.peek() == ' ') // if at the end of the face reset the count
+                else if (strstream.peek() == ' ')
                 {
-                    count = 0; // reset the count
+                    ++counter;
                     strstream.ignore(1, ' ');
+                }
+                // Reset the counter
+                if (counter > 2)
+                {
+                    counter = 0;
                 }
             }
 
-            // Assign each face a random color
-            color.push_back(glm::vec3(distr(gen), distr(gen), distr(gen)));
+            // Make HalfEdges for all of the vertex indices that were just made
+            for (const auto &v_idx : vert_pos_idx) // for each vertex
+            {
+                // For the following, recall .get() returns a raw ptr so everything is rewritten each loop!
+                uPtr<HalfEdge> he = mkU<HalfEdge>(); // instatiate HalfEdge object
+                he->vert = this->vertices[v_idx - 1].get(); // Assign the Vertex it points to (obj is 1 indexing, c++ is 0 indexing)
+                this->vertices[v_idx - 1]->halfEdge = he.get(); // Vertex stores 1 ptr to an arbitrary half-edge that points to it
+                he->face = f.get(); // assign all created HalfEdges to this Face
+                f->halfEdge = he.get(); // assign this Face one of these HalfEdges
+                this->halfEdges.push_back(std::move(he)); // Store HalfEdge in list of HalfEdges
+            }
+
+            // Assign Face a random color
+            f->color = genRandColor();
+
+            // Now this face is fully populated, so push into faces list
+            this->faces.push_back(std::move(f));
+
+            // HalfEdges need their next HE assigned and their symmetric HE assigned
+            int num_verts = vert_pos_idx.size(); // this is how many vertices/edges are in this face
+            for (int i = 0; i < int(vert_pos_idx.size()); i++) // for each vertex (equal to number of edges)
+            {
+                // Assign the next pointers
+                if (i < (num_verts - 1))
+                {
+                    // For indexing, note that this->halfEdges is done in order of all faces,
+                    // and in order of vertices for each face!
+                    this->halfEdges[int(this->halfEdges.size()) - num_verts + i]->heNext =
+                            this->halfEdges[int(this->halfEdges.size()) - num_verts + i + 1].get();
+                }
+                else // if at the last HalfEdge for this face, must assign next to the first HalfEdge
+                {
+                    this->halfEdges.back()->heNext = this->halfEdges[int(this->halfEdges.size()) - num_verts].get();
+                }
+
+                // Assign the symmetric pointers
+
+            }
 
         }
-        else
-        {
-            // do nothing
-        }
-
     }
-
-    // Now that the obj is loaded, create the half mesh data structure
-    // NOTE: For this assignment we actually only really need the vertices since
-    // the colors and texture coordinates are not constant once we modify the mesh in the gui
-
 }
 
 void Mesh::create()
@@ -139,24 +144,24 @@ void Mesh::create()
     for (const auto &face : this->faces) // for each face
     {
         // Iterate over the half edges to get vertex position info
-        HalfEdge *curr = face->hePtr; // make a raw pointer to the faces smart pointer
+        HalfEdge *curr = face->halfEdge; // make a raw pointer to the halfEdge for this face
 
         int numVerts = 0; // number of vertices on the current face
         do {
                 // Add the position
-                position.push_back(curr->vertPtr->pos); // put the position in the position vector
+                position.push_back(curr->vert->pos); // put the position in the position vector
                 // Add the color by talking the current faces color
-                color.push_back(curr->facePtr->color);
+                color.push_back(curr->face->color);
                 // Add the normal ( with the cross product of half edges )
-                normal.push_back(glm::cross((curr->vertPtr->pos - (curr->heSym->vertPtr->pos)),
-                           (curr->heNext->vertPtr->pos - curr->vertPtr->pos)));
+                normal.push_back(glm::cross((curr->vert->pos - (curr->heSym->vert->pos)),
+                           (curr->heNext->vert->pos - curr->vert->pos)));
 
                 // Update the current half edge to the next half edge
                 curr = curr->heNext; // get the next half edge
 
                 // Update the current vertex number
                 ++numVerts;
-        } while (curr != face->hePtr);
+        } while (curr != face->halfEdge);
 
         // Assign indices to the current faces vertices
         for (int i = 0; i < numVerts - 2; ++i)
@@ -172,21 +177,4 @@ void Mesh::create()
     // Set the count variable inside the create function
     // Set "count" to the number of indices in your index VBO
     count = idx.size();
-
-    // Make the HalfEdge data structure
-    // Populate the vertex unique pointers list
-    for (glm::vec3 &v : position)
-    {
-        uPtr<Vertex> vptr = mkU<Vertex>(v); // instantiate vert and make unique bitch to it
-        this->verts.push_back(vptr); // put in the thing
-
-        uPtr<HalfEdge> heptr = mkU<HalfEdge>(v);
-    }
-    // Create all of the HalfEdges
-//    for (glm::vec3 &v : position)
-//    {
-//        uPtr<HalfEdge> hePtr = mkU<HalfEdge>(*(&v + 1) - v);
-//        this->verts.push_back(vptr);
-//    }
-
 }

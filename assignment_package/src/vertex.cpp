@@ -3,13 +3,19 @@
 unsigned int Vertex::count = 0; // need to initialize the static variable count
 
 Vertex::Vertex()
-    : pos(), hePtr(), id(count++) // does this update count??
-{}
+    : pos(), halfEdge(nullptr), id(count) // does this update count??
+{
+    count++;
+}
 
-Vertex::Vertex(glm::vec3 position, HalfEdge *he)
-    : pos(position), hePtr(he), id(count++)
-{}
+//Vertex::Vertex(glm::vec3 position, HalfEdge *he)
+//    : pos(position), halfEdge(he), id(count)
+//{
+//    count++;
+//}
 
 Vertex::Vertex(glm::vec3 position)
-    : pos(position), hePtr(), id(count++)
-{}
+    : pos(position), halfEdge(nullptr), id(count)
+{
+    count++;
+}

@@ -10,14 +10,14 @@ class Mesh : public Drawable {
 private:
 
     std::vector<uPtr<Face>> faces; // stores the faces
-    std::vector<uPtr<Vertex>> verts; // stores the vertices
-    std::vector<uPtr<HalfEdge>> hes; // stores the halfedges
+    std::vector<uPtr<Vertex>> vertices; // stores the vertices
+    std::vector<uPtr<HalfEdge>> halfEdges; // stores the halfedges
 
 public:
 
     // Constructors/Destructors
-    Mesh(OpenGLContext*); // default constructor
-//    Mesh(OpenGLContext* context); // default constructor
+//    Mesh(OpenGLContext*); // default constructor
+    Mesh(OpenGLContext* context); // default constructor
 
     // Need to invoke the loading on an obj
 //    LoadOBJ load_obj(const char* file_name); // class implementation (DEPRECATED)

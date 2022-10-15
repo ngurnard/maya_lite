@@ -21,6 +21,7 @@ Question 4
 How do I read in a file in c++?
 Answer (Oct 13, 2022)
 https://www.youtube.com/watch?v=Ru7Tump8fKY&ab_channel=LearningLad
+https://www.youtube.com/watch?v=zMwKYCVNcn0&ab_channel=SurajSharma
 
 Question 5
 How do I load ignore a character in an stringstream?
