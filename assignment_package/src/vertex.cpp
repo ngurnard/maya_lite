@@ -9,3 +9,7 @@ Vertex::Vertex()
 Vertex::Vertex(glm::vec3 position, HalfEdge *he)
     : pos(position), hePtr(he), id(count++)
 {}
+
+Vertex::Vertex(glm::vec3 position)
+    : pos(position), hePtr(), id(count++)
+{}

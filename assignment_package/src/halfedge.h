@@ -21,5 +21,7 @@ public:
     // Constructors/Destructors
     HalfEdge(); // default constructor
     HalfEdge(HalfEdge *next, HalfEdge *sym, Face *face, Vertex *vert);
+
+    friend class Mesh;
 };
 

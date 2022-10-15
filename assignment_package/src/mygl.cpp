@@ -10,7 +10,8 @@ MyGL::MyGL(QWidget *parent)
     : OpenGLContext(parent),
       m_geomSquare(this),
       m_progLambert(this), m_progFlat(this),
-      m_glCamera()
+      m_glCamera(),
+      m_mesh(this)
 {
     setFocusPolicy(Qt::StrongFocus);
 }

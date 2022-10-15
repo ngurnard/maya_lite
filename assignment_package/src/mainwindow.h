@@ -22,6 +22,8 @@ private slots:
 
     void on_actionCamera_Controls_triggered();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

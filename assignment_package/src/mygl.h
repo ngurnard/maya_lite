@@ -9,6 +9,7 @@
 
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
+#include "mesh.h"
 
 
 class MyGL
@@ -25,7 +26,9 @@ private:
 
     Camera m_glCamera;
 
+    Mesh m_mesh; // define the mesh
 
+    // store the instance of the mesh here
 public:
     explicit MyGL(QWidget *parent = nullptr);
     ~MyGL();

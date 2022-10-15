@@ -8,6 +8,7 @@
 
 class Mesh : public Drawable {
 private:
+
     std::vector<uPtr<Face>> faces; // stores the faces
     std::vector<uPtr<Vertex>> verts; // stores the vertices
     std::vector<uPtr<HalfEdge>> hes; // stores the halfedges
@@ -19,9 +20,11 @@ public:
 //    Mesh(OpenGLContext* context); // default constructor
 
     // Need to invoke the loading on an obj
-    LoadOBJ load_obj(const char* file_name);
+//    LoadOBJ load_obj(const char* file_name); // class implementation (DEPRECATED)
+    void load_obj(const char* file_name);
+
 
     // Implement virtual function create()
-
+    void create() override;
 
 };

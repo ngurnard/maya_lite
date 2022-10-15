@@ -34,6 +34,16 @@ How to a make random numbers in c++?
 Answer (Oct 13, 23:09)
 https://stackoverflow.com/questions/7560114/random-number-c-in-some-range
 
+Question 7
+How to I set the the select file part of the QT GUI?
+Answer (Oct 14, 11:103)
+https://www.youtube.com/watch?v=tKdfpA74HYY&ab_channel=ProgrammingKnowledge
+
+Question 8
+How do I access next element in range based for loop before the next loop?
+Answer (Oct 14, 21:10)
+https://stackoverflow.com/questions/19967412/accessing-next-element-in-range-based-for-loop-before-the-next-loop
+
 
 ----------------------------------------------------------------------
 COLLABORATORS
