@@ -26,7 +26,7 @@ private:
 
     Camera m_glCamera;
 
-    Mesh m_mesh; // define the mesh
+//    Mesh m_mesh; // define the mesh
 
     // store the instance of the mesh here
 public:

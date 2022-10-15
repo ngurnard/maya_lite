@@ -8,8 +8,8 @@ Face::Face()
     count++;
 }
 
-Face::Face(HalfEdge *he)
-    : halfEdge(he), color(), id(count)
-{
-    count++;
-}
+//Face::Face(HalfEdge *he)
+//    : halfEdge(he), color(), id(count)
+//{
+//    count++;
+//}

@@ -12,8 +12,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->mygl->setFocus(); // ui->mygl points to the myl window of the ui (where the geom is shown)
 
     // Connect the obj button to import a .obj file
-    connect(ui->pushButton, SIGNAL(clicked()),
-            ui->mygl->m_mesh, SLOT());
+//    connect(ui->pushButton, SIGNAL(clicked()),
+//            ui->mygl->m_mesh, SLOT());
 
 
 //    connect(ui->mygl,
