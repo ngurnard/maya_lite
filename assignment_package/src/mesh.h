@@ -20,7 +20,6 @@ public:
     Mesh(OpenGLContext* context); // default constructor
 
     // Need to invoke the loading on an obj
-//    LoadOBJ load_obj(const char* file_name); // class implementation (DEPRECATED)
     void load_obj(const char* file_name);
 
 

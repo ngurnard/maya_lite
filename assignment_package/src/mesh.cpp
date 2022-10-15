@@ -18,6 +18,16 @@ glm::vec3 genRandColor()
     return glm::vec3(distr(gen), distr(gen), distr(gen));
 }
 
+struct pair_hash {
+    template <class T1, class T2>
+    std::size_t operator () (const std::pair<T1,T2> &p) const {
+        auto h1 = std::hash<T1>{}(p.first);
+        auto h2 = std::hash<T2>{}(p.second);
+
+        return h1 ^ h2;
+    }
+};
+
 void Mesh::load_obj(const char* file_name)
 {
     std::ifstream input_file(file_name); // input file object
@@ -36,6 +46,12 @@ void Mesh::load_obj(const char* file_name)
     // This is temporary
     glm::vec3 temp_pos;
     GLint temp_glint = 0;
+
+    // The HalfEdge map that pairs 2 vertices (previous and next) with a halfedge
+    // used for builing the symmetric pointers in the half edge data structure
+    // refer to: https://stackoverflow.com/questions/32685540/why-cant-i-compile-an-unordered-map-with-a-pair-as-key
+    // refer to: https://en.cppreference.com/w/cpp/container/unordered_map
+    std::unordered_map<std::pair<int,int>, HalfEdge*, pair_hash> heMap;
 
     // While not at the end of the file, read line by line
     while(std::getline(input_file, line))
@@ -109,22 +125,56 @@ void Mesh::load_obj(const char* file_name)
 
             // HalfEdges need their next HE assigned and their symmetric HE assigned
             int num_verts = vert_pos_idx.size(); // this is how many vertices/edges are in this face
-            for (int i = 0; i < int(vert_pos_idx.size()); i++) // for each vertex (equal to number of edges)
+            count = 0; // for indexing
+            for (const auto &v_idx : vert_pos_idx) // for each vertex (equal to number of edges)
             {
                 // Assign the next pointers
-                if (i < (num_verts - 1))
+                if (count < (num_verts - 1))
                 {
                     // For indexing, note that this->halfEdges is done in order of all faces,
                     // and in order of vertices for each face!
-                    this->halfEdges[int(this->halfEdges.size()) - num_verts + i]->heNext =
-                            this->halfEdges[int(this->halfEdges.size()) - num_verts + i + 1].get();
+                    this->halfEdges[int(this->halfEdges.size()) - num_verts + count]->heNext =
+                            this->halfEdges[int(this->halfEdges.size()) - num_verts + count + 1].get();
                 }
                 else // if at the last HalfEdge for this face, must assign next to the first HalfEdge
                 {
                     this->halfEdges.back()->heNext = this->halfEdges[int(this->halfEdges.size()) - num_verts].get();
                 }
 
-                // Assign the symmetric pointers
+                // Assign the symmetric pointers (the map uses 1 indexing so I don't have to subtract 1)
+                int vert1 = v_idx;
+                int vert2; // need to declare in the scope outside of if/else
+                if (count == 0)
+                {
+                    vert2 = vert_pos_idx.back(); // get the last one in the vert_pos_idx list
+                }
+                else
+                {
+                    // https://stackoverflow.com/questions/19967412/accessing-next-element-in-range-based-for-loop-before-the-next-loop
+                    vert2 = *(&vert_pos_idx[count]);
+                }
+
+                // Define the key and value
+                std::pair<int,int> map_key(vert1, vert2); // store two heterogeneous objects as a single unit
+                HalfEdge *hePtr = this->halfEdges[halfEdges.size() - num_verts + count].get();
+
+                // Need to provide a suitable hash function for your key type for an unordered_map!
+                // and std::pair is not hashable
+                // Refer: https://stackoverflow.com/questions/32685540/why-cant-i-compile-an-unordered-map-with-a-pair-as-key
+                // Refer: https://stackoverflow.com/questions/69329772/why-mappairint-int-int-works-but-unordered-mappairint-int-doesnt
+                // Refer: https://en.cppreference.com/w/cpp/container/unordered_map
+
+                if (heMap.find(map_key) == heMap.end()) // if this key does NOT exist, create the key, value pair
+                {
+                    heMap[map_key] = hePtr;
+                }
+                else // if the key already exists, create the symmetric pointers!
+                {
+                    hePtr->heSym = heMap.find(map_key)->second; // second gives the value (HalfEdge*)
+                    heMap.find(map_key)->second->heSym = hePtr;
+                }
+
+                count++;
 
             }
 

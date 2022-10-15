@@ -45,6 +45,27 @@ How do I access next element in range based for loop before the next loop?
 Answer (Oct 14, 21:10)
 https://stackoverflow.com/questions/19967412/accessing-next-element-in-range-based-for-loop-before-the-next-loop
 
+Question 9 
+Undeclared identifier error in if and else if (C++)
+Answer (Oct 14, 17:53)
+Defining something in the scope of curly braces is bad {} and will be forgotten, unless you do what is suggested here:
+https://stackoverflow.com/questions/32399372/undeclared-identifier-error-in-if-and-else-if-c
+OR you can use a ternary operator with if else because a scope is not placed with curly braces:
+https://www.programiz.com/cpp-programming/ternary-operator
+
+Question 10
+Why can't I compile an unordered_map with a pair as key?
+Answer (Oct 15, 18:07)
+https://stackoverflow.com/questions/32685540/why-cant-i-compile-an-unordered-map-with-a-pair-as-key
+https://stackoverflow.com/questions/69329772/why-mappairint-int-int-works-but-unordered-mappairint-int-doesnt
+
+Question 11
+How do I check if something is in an unordered_map already?
+Answer (Oct 15, 18:18)
+https://stackoverflow.com/questions/34512437/simplest-method-to-check-whether-unordered-map-of-unordered-maps-contains-key
+https://www.geeksforgeeks.org/check-key-present-cpp-map-unordered_map/
+
+
 
 ----------------------------------------------------------------------
 COLLABORATORS
