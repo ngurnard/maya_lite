@@ -170,7 +170,7 @@ void ShaderProgram::draw(Drawable &d)
     // Bind the index buffer and then draw shapes from it.
     // This invokes the shader program, which accesses the vertex buffers.
     d.bindIdx();
-    context->glDrawElements(d.drawMode(), d.elemCount(), GL_UNSIGNED_INT, 0);
+    context->glDrawElements(d.drawMode(), d.elemCount(), GL_UNSIGNED_INT, 0); // draw call to the triangles
 
     if (attrPos != -1) context->glDisableVertexAttribArray(attrPos);
     if (attrNor != -1) context->glDisableVertexAttribArray(attrNor);

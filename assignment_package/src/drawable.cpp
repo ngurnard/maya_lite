@@ -40,7 +40,7 @@ void Drawable::generateIdx()
 {
     idxBound = true;
     // Create a VBO on our GPU and store its handle in bufIdx
-    mp_context->glGenBuffers(1, &bufIdx);
+    mp_context->glGenBuffers(1, &bufIdx); // generate 1 buffer with ID &bufIdx
 }
 
 void Drawable::generatePos()

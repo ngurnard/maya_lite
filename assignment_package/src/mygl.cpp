@@ -4,14 +4,16 @@
 #include <iostream>
 #include <QApplication>
 #include <QKeyEvent>
+#include <QFileDialog> // for the file selection button
+#include <QMessageBox>
 
 
 MyGL::MyGL(QWidget *parent)
     : OpenGLContext(parent),
       m_geomSquare(this),
       m_progLambert(this), m_progFlat(this),
-      m_glCamera()
-//      m_mesh(this)
+      m_glCamera(),
+      m_mesh(this) // initialize the mesh
 {
     setFocusPolicy(Qt::StrongFocus);
 }
@@ -48,7 +50,9 @@ void MyGL::initializeGL()
     glGenVertexArrays(1, &vao);
 
     //Create the instances of Cylinder and Sphere.
-    m_geomSquare.create();
+//    m_geomSquare.create();
+    m_mesh.create();
+    std::cout << "successfully created in mygl.cpp" << std::endl;
 
     // Create and set up the diffuse shader
     m_progLambert.create(":/glsl/lambert.vert.glsl", ":/glsl/lambert.frag.glsl");
@@ -92,17 +96,19 @@ void MyGL::paintGL()
     //Note that we have to transpose the model matrix before passing it to the shader
     //This is because OpenGL expects column-major matrices, but you've
     //implemented row-major matrices.
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(-2,0,0)) * glm::rotate(glm::mat4(), 0.25f * 3.14159f, glm::vec3(0,1,0));
+//    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(-2,0,0)) * glm::rotate(glm::mat4(), 0.25f * 3.14159f, glm::vec3(0,1,0));
+    glm::mat4 model = glm::mat4(1.0f); // identity matrix
     //Send the geometry's transformation matrix to the shader
     m_progLambert.setModelMatrix(model);
     //Draw the example sphere using our lambert shader
-    m_progLambert.draw(m_geomSquare);
+//    m_progLambert.draw(m_geomSquare);
+    m_progLambert.draw(m_mesh);
 
     //Now do the same to render the cylinder
     //We've rotated it -45 degrees on the Z axis, then translated it to the point <2,2,0>
-    model = glm::translate(glm::mat4(1.0f), glm::vec3(2,2,0)) * glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(0,0,1));
-    m_progLambert.setModelMatrix(model);
-    m_progLambert.draw(m_geomSquare);
+//    model = glm::translate(glm::mat4(1.0f), glm::vec3(2,2,0)) * glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(0,0,1));
+//    m_progLambert.setModelMatrix(model);
+//    m_progLambert.draw(m_geomSquare);
 }
 
 
@@ -146,4 +152,25 @@ void MyGL::keyPressEvent(QKeyEvent *e)
     }
     m_glCamera.RecomputeAttributes();
     update();  // Calls paintGL, among other things
+}
+
+void MyGL::slot_loadObj()
+{
+    // https://www.youtube.com/watch?v=tKdfpA74HYY&ab_channel=ProgrammingKnowledge
+    const QString filename = QFileDialog::getOpenFileName(
+                this,
+                tr("Open OBJ File"), // title of the file dialog (basically the window that pops up)
+                "/home/nicholas/Documents/upenn/CIS560/homework", // Default file to open
+                "OBJ Files (*.obj)" // filter for obj files
+                );
+    QMessageBox::information(this, tr("Selected File Name"), filename);
+
+    // convert the QString to a const char*
+    std::string str = filename.toStdString();
+    const char* my_str = str.c_str();
+    std::cout << my_str << std::endl;
+    this->m_mesh.load_obj(my_str); // this creates the mesh
+
+    m_mesh.create();
+    update();
 }

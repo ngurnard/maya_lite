@@ -185,10 +185,10 @@ void Mesh::load_obj(const char* file_name)
 void Mesh::create()
 {
     // Need vectors to store the positions and color and normals for each face
-    std::vector<glm::vec3> position;
-    std::vector<glm::vec3> color;
-    std::vector<glm::vec3> normal;
     std::vector<GLint> idx; // store the index vertices
+    std::vector<glm::vec3> position;
+    std::vector<glm::vec3> normal;
+    std::vector<glm::vec3> color;
 
     int totVerts = 0; // initialize the total amount of vertices
     for (const auto &face : this->faces) // for each face
@@ -227,4 +227,32 @@ void Mesh::create()
     // Set the count variable inside the create function
     // Set "count" to the number of indices in your index VBO
     count = idx.size();
+
+    // Now I want to generate the VBOs to be sent to the GPU (borrowed from scene graph project -- hw2)
+    // Referece: https://www.youtube.com/watch?v=0p9VxImr7Y0&list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2&index=4&ab_channel=TheCherno
+
+    // Create a VBO on our GPU and store its handle in bufIdx
+    generateIdx(); // create a buffer
+    // Tell OpenGL that we want to perform subsequent operations on the VBO referred to by bufIdx
+    // and that it will be treated as an element array buffer (since it will contain triangle indices)
+    mp_context->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufIdx); // selects buffer with ID bufIdx
+    // Pass the data stored in cyl_idx into the bound buffer, reading a number of bytes equal to
+    // the number of indices multiplied by the size of a GLuint. This data is sent to the GPU to be read by shader programs.
+    mp_context->glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLuint), idx.data(), GL_STATIC_DRAW); // put data in the buffer
+
+    generatePos();
+    mp_context->glBindBuffer(GL_ARRAY_BUFFER, bufPos);
+    mp_context->glBufferData(GL_ARRAY_BUFFER, position.size() * sizeof(glm::vec3), position.data(), GL_STATIC_DRAW);
+
+    generateNor();
+    mp_context->glBindBuffer(GL_ARRAY_BUFFER, bufNor);
+    mp_context->glBufferData(GL_ARRAY_BUFFER, normal.size() * sizeof(glm::vec3), normal.data(), GL_STATIC_DRAW);
+
+    generateCol();
+    mp_context->glBindBuffer(GL_ARRAY_BUFFER, bufCol);
+    mp_context->glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
+
+    // Free up memory now that we no longer need the vertex info to be stored on the CPU
+//    count.clear();
+
 }

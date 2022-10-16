@@ -65,6 +65,12 @@ Answer (Oct 15, 18:18)
 https://stackoverflow.com/questions/34512437/simplest-method-to-check-whether-unordered-map-of-unordered-maps-contains-key
 https://www.geeksforgeeks.org/check-key-present-cpp-map-unordered_map/
 
+Question 12
+I am still confused on a lot of opengl functions and how everything works to implement the gui.
+What exactly am I doing with all the biffers and stuff?
+Answer (Oct 15, 20:12)
+https://www.youtube.com/watch?v=0p9VxImr7Y0&list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2&index=4&ab_channel=TheCherno
+
 
 
 ----------------------------------------------------------------------

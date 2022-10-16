@@ -26,7 +26,7 @@ private:
 
     Camera m_glCamera;
 
-//    Mesh m_mesh; // define the mesh
+    Mesh m_mesh; // define the mesh in the mygl window
 
     // store the instance of the mesh here
 public:
@@ -39,6 +39,12 @@ public:
 
 protected:
     void keyPressEvent(QKeyEvent *e);
+
+signals:
+
+public slots:
+
+    void slot_loadObj(); // call the load obj function to set the mesh in mygl
 };
 
 

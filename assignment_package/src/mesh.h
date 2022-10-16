@@ -20,8 +20,8 @@ public:
     Mesh(OpenGLContext* context); // default constructor
 
     // Need to invoke the loading on an obj
+    // loading the obj also creates the member variables of this class
     void load_obj(const char* file_name);
-
 
     // Implement virtual function create()
     void create() override;
