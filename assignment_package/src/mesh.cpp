@@ -14,19 +14,29 @@ glm::vec3 genRandColor()
     // This is to generate random numbers for colors
     std::random_device rd; // obtain a random number from hardware
     std::mt19937 gen(rd()); // seed the generator
-    std::uniform_int_distribution<> distr(0, 255); // define the range
+    std::uniform_real_distribution<> distr(0, 1); // define the range
     return glm::vec3(distr(gen), distr(gen), distr(gen));
 }
 
+// if using the vertex indices SORTED ({1,3} != {3,1}), it works everytime
 struct pair_hash {
     template <class T1, class T2>
     std::size_t operator () (const std::pair<T1,T2> &p) const {
-        auto h1 = std::hash<T1>{}(p.first);
+        auto h1 = std::hash<T1>{}(p.first); // std::hash  {}
         auto h2 = std::hash<T2>{}(p.second);
 
-        return h1 ^ h2;
+        return h1 ^ h2; // XOR
     }
 };
+
+// if using the addresses as sugested in class (SMALL CHANCE IT DOESN'T WORK)
+//struct pair_hash {
+//    uint64_t operator() (const std::pair<Vertex*, Vertex*> p) const {
+//        uint64_t h1 = reinterpret_cast<uint64_t>(p.first);
+//        uint64_t h2 = reinterpret_cast<uint64_t>(p.second);
+//        return h1 ^ h2; // XOR
+//    }
+//};
 
 void Mesh::load_obj(const char* file_name)
 {
@@ -52,6 +62,7 @@ void Mesh::load_obj(const char* file_name)
     // refer to: https://stackoverflow.com/questions/32685540/why-cant-i-compile-an-unordered-map-with-a-pair-as-key
     // refer to: https://en.cppreference.com/w/cpp/container/unordered_map
     std::unordered_map<std::pair<int,int>, HalfEdge*, pair_hash> heMap;
+//    std::unordered_map<std::pair<Vertex*,Vertex*>, HalfEdge*, pair_hash> heMap;
 
     // While not at the end of the file, read line by line
     while(std::getline(input_file, line))
@@ -78,30 +89,30 @@ void Mesh::load_obj(const char* file_name)
             // Instatiate a face object
             uPtr<Face> f = mkU<Face>();
 
-            int counter = 0; // to only grab the first part
+            int iter = 0; // to only grab the first part
             while (strstream >> temp_glint)
             {
-                if (counter == 0)
+                if (iter == 0)
                 {
                     // Populate the indices vectors with the appropriate GLint
                     vert_pos_idx.push_back(temp_glint);
                 }
 
-                // Increment the counter such that we only get the fist part of each str for face
+                // Increment the iter such that we only get the fist part of each str for face
                 if (strstream.peek() == '/')
                 {
-                    ++counter;
+                    ++iter;
                     strstream.ignore(1, '/');
                 }
                 else if (strstream.peek() == ' ')
                 {
-                    ++counter;
+                    ++iter;
                     strstream.ignore(1, ' ');
                 }
-                // Reset the counter
-                if (counter > 2)
+                // Reset the iter
+                if (iter > 2)
                 {
-                    counter = 0;
+                    iter = 0;
                 }
             }
 
@@ -125,16 +136,16 @@ void Mesh::load_obj(const char* file_name)
 
             // HalfEdges need their next HE assigned and their symmetric HE assigned
             int num_verts = vert_pos_idx.size(); // this is how many vertices/edges are in this face
-            count = 0; // for indexing
+            iter = 0; // for indexing
             for (const auto &v_idx : vert_pos_idx) // for each vertex (equal to number of edges)
             {
                 // Assign the next pointers
-                if (count < (num_verts - 1))
+                if (iter < (num_verts - 1))
                 {
                     // For indexing, note that this->halfEdges is done in order of all faces,
                     // and in order of vertices for each face!
-                    this->halfEdges[int(this->halfEdges.size()) - num_verts + count]->heNext =
-                            this->halfEdges[int(this->halfEdges.size()) - num_verts + count + 1].get();
+                    this->halfEdges[int(this->halfEdges.size()) - num_verts + iter]->heNext =
+                            this->halfEdges[int(this->halfEdges.size()) - num_verts + iter + 1].get();
                 }
                 else // if at the last HalfEdge for this face, must assign next to the first HalfEdge
                 {
@@ -144,19 +155,25 @@ void Mesh::load_obj(const char* file_name)
                 // Assign the symmetric pointers (the map uses 1 indexing so I don't have to subtract 1)
                 int vert1 = v_idx;
                 int vert2; // need to declare in the scope outside of if/else
-                if (count == 0)
+                if (iter == 0)
                 {
                     vert2 = vert_pos_idx.back(); // get the last one in the vert_pos_idx list
                 }
                 else
                 {
                     // https://stackoverflow.com/questions/19967412/accessing-next-element-in-range-based-for-loop-before-the-next-loop
-                    vert2 = *(&vert_pos_idx[count]);
+                    vert2 = *(&vert_pos_idx[iter - 1]); // the previous one
                 }
 
                 // Define the key and value
-                std::pair<int,int> map_key(vert1, vert2); // store two heterogeneous objects as a single unit
-                HalfEdge *hePtr = this->halfEdges[halfEdges.size() - num_verts + count].get();
+                // if using the vertex indices SORTED ({1,3} != {3,1}), it works everytime
+                std::array<int, 2> key_pair = {vert1, vert2};
+                std::sort(key_pair.begin(), key_pair.end());
+//                std::cout << "Vertex pairs: {" << key_pair[0] << ", " << key_pair[1] << "}" << std::endl;
+                std::pair<int, int> map_key(key_pair[0], key_pair[1]); // store two heterogeneous objects as a single unit
+                // if using the addresses as sugested in class (SMALL CHANCE IT DOESN'T WORK)
+//                std::pair<Vertex*, Vertex*> map_key(this->vertices[vert1 - 1].get(), this->vertices[vert2 - 1].get()); // store two heterogeneous objects as a single unit
+                HalfEdge *curr_hePtr = this->halfEdges[halfEdges.size() - num_verts + iter].get();
 
                 // Need to provide a suitable hash function for your key type for an unordered_map!
                 // and std::pair is not hashable
@@ -164,17 +181,19 @@ void Mesh::load_obj(const char* file_name)
                 // Refer: https://stackoverflow.com/questions/69329772/why-mappairint-int-int-works-but-unordered-mappairint-int-doesnt
                 // Refer: https://en.cppreference.com/w/cpp/container/unordered_map
 
-                if (heMap.find(map_key) == heMap.end()) // if this key does NOT exist, create the key, value pair
+                if (heMap.find(map_key) != heMap.end()) // if the key already exists, create the symmetric pointers!
                 {
-                    heMap[map_key] = hePtr;
+//                    std::cout << "Key found!" << std::endl;
+                    curr_hePtr->heSym = heMap.find(map_key)->second; // second gives the value (HalfEdge*)
+                    heMap.find(map_key)->second->heSym = curr_hePtr;
                 }
-                else // if the key already exists, create the symmetric pointers!
+                else // if this key does NOT exist, create the key, value pair
                 {
-                    hePtr->heSym = heMap.find(map_key)->second; // second gives the value (HalfEdge*)
-                    heMap.find(map_key)->second->heSym = hePtr;
+//                    std::cout << "Key NOT found..." << std::endl;
+                    heMap[map_key] = curr_hePtr;
                 }
 
-                count++;
+                iter++;
 
             }
 
@@ -186,8 +205,8 @@ void Mesh::create()
 {
     // Need vectors to store the positions and color and normals for each face
     std::vector<GLint> idx; // store the index vertices
-    std::vector<glm::vec3> position;
-    std::vector<glm::vec3> normal;
+    std::vector<glm::vec4> position;
+    std::vector<glm::vec4> normal;
     std::vector<glm::vec3> color;
 
     int totVerts = 0; // initialize the total amount of vertices
@@ -199,12 +218,13 @@ void Mesh::create()
         int numVerts = 0; // number of vertices on the current face
         do {
                 // Add the position
-                position.push_back(curr->vert->pos); // put the position in the position vector
+                position.push_back(glm::vec4(curr->vert->pos, 1)); // put the position in the position vector
                 // Add the color by talking the current faces color
                 color.push_back(curr->face->color);
                 // Add the normal ( with the cross product of half edges )
-                normal.push_back(glm::cross((curr->vert->pos - (curr->heSym->vert->pos)),
-                           (curr->heNext->vert->pos - curr->vert->pos)));
+                const glm::vec3 line1 = curr->vert->pos - (curr->heSym->vert->pos);
+                const glm::vec3 line2 = curr->heNext->vert->pos - curr->heNext->heSym->vert->pos;
+                normal.push_back(glm::vec4(glm::cross(line1, line2), 1));
 
                 // Update the current half edge to the next half edge
                 curr = curr->heNext; // get the next half edge
