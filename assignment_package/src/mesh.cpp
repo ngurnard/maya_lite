@@ -5,6 +5,8 @@
 # include <sstream> // make a string an object (stringstream). https://www.tutorialspoint.com/stringstream-in-cplusplus
 # include "smartpointerhelp.h"
 
+#include <QFileDialog>
+
 Mesh::Mesh(OpenGLContext *context)
     : Drawable(context), faces(), vertices(), halfEdges()
 {}
@@ -40,6 +42,14 @@ struct pair_hash {
 
 void Mesh::load_obj(const char* file_name)
 {
+    // Need to delete the mesh essentially if loading a new obj from the file dialog so it doesnt combine 2 objs
+    Face::count = 0; // reset the count (static ID)
+    Vertex::count = 0;
+    HalfEdge::count = 0;
+    this->faces.clear(); // clear removes all elements of a vector
+    this->halfEdges.clear();
+    this->vertices.clear();
+
     std::ifstream input_file(file_name); // input file object
 
     // Make sure the file is read correctly, else throw error
@@ -63,6 +73,7 @@ void Mesh::load_obj(const char* file_name)
     // refer to: https://en.cppreference.com/w/cpp/container/unordered_map
     std::unordered_map<std::pair<int,int>, HalfEdge*, pair_hash> heMap;
 //    std::unordered_map<std::pair<Vertex*,Vertex*>, HalfEdge*, pair_hash> heMap;
+//    std::map<std::pair<int,int>, HalfEdge*> heMap;
 
     // While not at the end of the file, read line by line
     while(std::getline(input_file, line))
@@ -95,7 +106,7 @@ void Mesh::load_obj(const char* file_name)
                 if (iter == 0)
                 {
                     // Populate the indices vectors with the appropriate GLint
-                    vert_pos_idx.push_back(temp_glint);
+                    vert_pos_idx.push_back(temp_glint - 1);
                 }
 
                 // Increment the iter such that we only get the fist part of each str for face
@@ -121,8 +132,8 @@ void Mesh::load_obj(const char* file_name)
             {
                 // For the following, recall .get() returns a raw ptr so everything is rewritten each loop!
                 uPtr<HalfEdge> he = mkU<HalfEdge>(); // instatiate HalfEdge object
-                he->vert = this->vertices[v_idx - 1].get(); // Assign the Vertex it points to (obj is 1 indexing, c++ is 0 indexing)
-                this->vertices[v_idx - 1]->halfEdge = he.get(); // Vertex stores 1 ptr to an arbitrary half-edge that points to it
+                he->vert = this->vertices[v_idx].get(); // Assign the Vertex it points to (obj is 1 indexing, c++ is 0 indexing)
+                this->vertices[v_idx]->halfEdge = he.get(); // Vertex stores 1 ptr to an arbitrary half-edge that points to it
                 he->face = f.get(); // assign all created HalfEdges to this Face
                 f->halfEdge = he.get(); // assign this Face one of these HalfEdges
                 this->halfEdges.push_back(std::move(he)); // Store HalfEdge in list of HalfEdges
@@ -169,7 +180,6 @@ void Mesh::load_obj(const char* file_name)
                 // if using the vertex indices SORTED ({1,3} != {3,1}), it works everytime
                 std::array<int, 2> key_pair = {vert1, vert2};
                 std::sort(key_pair.begin(), key_pair.end());
-//                std::cout << "Vertex pairs: {" << key_pair[0] << ", " << key_pair[1] << "}" << std::endl;
                 std::pair<int, int> map_key(key_pair[0], key_pair[1]); // store two heterogeneous objects as a single unit
                 // if using the addresses as sugested in class (SMALL CHANCE IT DOESN'T WORK)
 //                std::pair<Vertex*, Vertex*> map_key(this->vertices[vert1 - 1].get(), this->vertices[vert2 - 1].get()); // store two heterogeneous objects as a single unit
@@ -180,16 +190,14 @@ void Mesh::load_obj(const char* file_name)
                 // Refer: https://stackoverflow.com/questions/32685540/why-cant-i-compile-an-unordered-map-with-a-pair-as-key
                 // Refer: https://stackoverflow.com/questions/69329772/why-mappairint-int-int-works-but-unordered-mappairint-int-doesnt
                 // Refer: https://en.cppreference.com/w/cpp/container/unordered_map
-
-                if (heMap.find(map_key) != heMap.end()) // if the key already exists, create the symmetric pointers!
+                auto search = heMap.find(map_key);
+                if (search != heMap.end()) // if the key already exists, create the symmetric pointers!
                 {
-//                    std::cout << "Key found!" << std::endl;
-                    curr_hePtr->heSym = heMap.find(map_key)->second; // second gives the value (HalfEdge*)
-                    heMap.find(map_key)->second->heSym = curr_hePtr;
+                    curr_hePtr->heSym = search->second; // second gives the value (HalfEdge*)
+                    search->second->heSym = curr_hePtr;
                 }
                 else // if this key does NOT exist, create the key, value pair
                 {
-//                    std::cout << "Key NOT found..." << std::endl;
                     heMap[map_key] = curr_hePtr;
                 }
 
@@ -207,7 +215,7 @@ void Mesh::create()
     std::vector<GLint> idx; // store the index vertices
     std::vector<glm::vec4> position;
     std::vector<glm::vec4> normal;
-    std::vector<glm::vec3> color;
+    std::vector<glm::vec4> color;
 
     int totVerts = 0; // initialize the total amount of vertices
     for (const auto &face : this->faces) // for each face
@@ -220,7 +228,7 @@ void Mesh::create()
                 // Add the position
                 position.push_back(glm::vec4(curr->vert->pos, 1)); // put the position in the position vector
                 // Add the color by talking the current faces color
-                color.push_back(curr->face->color);
+                color.push_back(glm::vec4(face->color, 1));
                 // Add the normal ( with the cross product of half edges )
                 const glm::vec3 line1 = curr->vert->pos - (curr->heSym->vert->pos);
                 const glm::vec3 line2 = curr->heNext->vert->pos - curr->heNext->heSym->vert->pos;
@@ -241,12 +249,12 @@ void Mesh::create()
             idx.push_back(i + 2 + totVerts);
         }
 
-        totVerts += numVerts; // update the total number of indices seen
+    totVerts += numVerts; // update the total number of indices seen
     }
 
     // Set the count variable inside the create function
     // Set "count" to the number of indices in your index VBO
-    count = idx.size();
+    this->count = idx.size();
 
     // Now I want to generate the VBOs to be sent to the GPU (borrowed from scene graph project -- hw2)
     // Referece: https://www.youtube.com/watch?v=0p9VxImr7Y0&list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2&index=4&ab_channel=TheCherno
@@ -262,17 +270,17 @@ void Mesh::create()
 
     generatePos();
     mp_context->glBindBuffer(GL_ARRAY_BUFFER, bufPos);
-    mp_context->glBufferData(GL_ARRAY_BUFFER, position.size() * sizeof(glm::vec3), position.data(), GL_STATIC_DRAW);
+    mp_context->glBufferData(GL_ARRAY_BUFFER, position.size() * sizeof(glm::vec4), position.data(), GL_STATIC_DRAW);
 
     generateNor();
     mp_context->glBindBuffer(GL_ARRAY_BUFFER, bufNor);
-    mp_context->glBufferData(GL_ARRAY_BUFFER, normal.size() * sizeof(glm::vec3), normal.data(), GL_STATIC_DRAW);
+    mp_context->glBufferData(GL_ARRAY_BUFFER, normal.size() * sizeof(glm::vec4), normal.data(), GL_STATIC_DRAW);
 
     generateCol();
     mp_context->glBindBuffer(GL_ARRAY_BUFFER, bufCol);
-    mp_context->glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
+    mp_context->glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec4), color.data(), GL_STATIC_DRAW);
 
     // Free up memory now that we no longer need the vertex info to be stored on the CPU
-//    count.clear();
+    idx.clear();
 
 }

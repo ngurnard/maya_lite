@@ -71,6 +71,11 @@ What exactly am I doing with all the biffers and stuff?
 Answer (Oct 15, 20:12)
 https://www.youtube.com/watch?v=0p9VxImr7Y0&list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2&index=4&ab_channel=TheCherno
 
+Question 13
+How do I remove all elements of a vector?
+Answer (Oct 17, 00:42)
+https://cplusplus.com/reference/vector/vector/clear/
+
 
 
 ----------------------------------------------------------------------

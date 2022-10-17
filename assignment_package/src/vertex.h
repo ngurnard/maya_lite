@@ -17,7 +17,6 @@ public:
     // Constructors/Destructors
     Vertex(); // default constructor
     Vertex(glm::vec3 position);
-//    Vertex(glm::vec3 position, HalfEdge *he);
 
     friend class Mesh;
 };

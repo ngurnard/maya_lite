@@ -169,8 +169,8 @@ void MyGL::slot_loadObj()
     std::string str = filename.toStdString();
     const char* my_str = str.c_str();
     std::cout << my_str << std::endl;
-    this->m_mesh.load_obj(my_str); // this creates the mesh
 
-    m_mesh.create();
-    update();
+    this->m_mesh.load_obj(my_str); // this creates the mesh
+    this->m_mesh.create();
+    this->update(); // Calls paintGL, among other things (taken from above in keyPressEvent)
 }

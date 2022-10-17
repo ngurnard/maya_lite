@@ -16,7 +16,6 @@ public:
 
     // Constructors/Destructors
     Face(); // default constructor
-//    Face(HalfEdge *he);
 
     friend class Mesh;
 };
