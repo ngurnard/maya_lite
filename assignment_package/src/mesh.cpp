@@ -53,6 +53,10 @@ void Mesh::clearMesh()
 
 void Mesh::load_obj(const char* file_name)
 {
+
+    // clear mesh
+    clearMesh();
+
     std::ifstream input_file(file_name); // input file object
 
     // Make sure the file is read correctly, else throw error

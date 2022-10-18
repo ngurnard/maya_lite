@@ -205,8 +205,6 @@ void MyGL::keyPressEvent(QKeyEvent *e)
                 slot_selectHE(mp_selected_face->halfEdge);
             }
         }
-
-
     }
     m_glCamera.RecomputeAttributes();
     update();  // Calls paintGL, among other things
@@ -228,6 +226,7 @@ void MyGL::slot_loadObj()
     const char* my_str = str.c_str();
     std::cout << my_str << std::endl;
 
+//    m_mesh = Mesh(this);
     this->m_mesh.load_obj(my_str); // this creates the mesh
     this->m_mesh.destroy();
     this->m_mesh.create();
@@ -240,6 +239,7 @@ void MyGL::slot_loadObj()
 
 void MyGL::slot_selectVertex(QListWidgetItem *i)
 {
+    // Make it so only the selected displays
     this->mp_selected_face = NULL;
     this->mp_selected_halfEdge = NULL;
 
@@ -250,6 +250,7 @@ void MyGL::slot_selectVertex(QListWidgetItem *i)
 }
 void MyGL::slot_selectFace(QListWidgetItem *i)
 {
+    // Make it so only the selected displays
     this->mp_selected_vertex = NULL;
     this->mp_selected_halfEdge = NULL;
 
@@ -260,6 +261,7 @@ void MyGL::slot_selectFace(QListWidgetItem *i)
 }
 void MyGL::slot_selectHE(QListWidgetItem *i)
 {
+    // Make it so only the selected displays
     this->mp_selected_vertex = NULL;
     this->mp_selected_face = NULL;
 
