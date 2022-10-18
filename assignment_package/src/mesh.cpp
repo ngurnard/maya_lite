@@ -40,7 +40,7 @@ struct pair_hash {
 //    }
 //};
 
-void Mesh::load_obj(const char* file_name)
+void Mesh::clearMesh()
 {
     // Need to delete the mesh essentially if loading a new obj from the file dialog so it doesnt combine 2 objs
     Face::count = 0; // reset the count (static ID)
@@ -49,7 +49,10 @@ void Mesh::load_obj(const char* file_name)
     this->faces.clear(); // clear removes all elements of a vector
     this->halfEdges.clear();
     this->vertices.clear();
+}
 
+void Mesh::load_obj(const char* file_name)
+{
     std::ifstream input_file(file_name); // input file object
 
     // Make sure the file is read correctly, else throw error
@@ -73,7 +76,6 @@ void Mesh::load_obj(const char* file_name)
     // refer to: https://en.cppreference.com/w/cpp/container/unordered_map
     std::unordered_map<std::pair<int,int>, HalfEdge*, pair_hash> heMap;
 //    std::unordered_map<std::pair<Vertex*,Vertex*>, HalfEdge*, pair_hash> heMap;
-//    std::map<std::pair<int,int>, HalfEdge*> heMap;
 
     // While not at the end of the file, read line by line
     while(std::getline(input_file, line))

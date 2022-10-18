@@ -3,7 +3,9 @@ DEPENDPATH += $$PWD
 
 SOURCES += \
     $$PWD/face.cpp \
+    $$PWD/face_display.cpp \
     $$PWD/halfedge.cpp \
+    $$PWD/halfedge_display.cpp \
     $$PWD/main.cpp \
     $$PWD/mainwindow.cpp \
     $$PWD/mesh.cpp \
@@ -16,11 +18,14 @@ SOURCES += \
     $$PWD/cameracontrolshelp.cpp \
     $$PWD/openglcontext.cpp \
     $$PWD/scene/squareplane.cpp \
-    $$PWD/vertex.cpp
+    $$PWD/vertex.cpp \
+    $$PWD/vertex_display.cpp
 
 HEADERS += \
     $$PWD/face.h \
+    $$PWD/face_display.h \
     $$PWD/halfedge.h \
+    $$PWD/halfedge_display.h \
     $$PWD/la.h \
     $$PWD/mainwindow.h \
     $$PWD/mesh.h \
@@ -33,4 +38,5 @@ HEADERS += \
     $$PWD/openglcontext.h \
     $$PWD/scene/squareplane.h\
     $$PWD/smartpointerhelp.h \
-    $$PWD/vertex.h
+    $$PWD/vertex.h \
+    $$PWD/vertex_display.h

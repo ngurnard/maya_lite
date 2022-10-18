@@ -26,4 +26,8 @@ public:
     // Implement virtual function create()
     void create() override;
 
+    // Need to delete the mesh essentially if loading a new obj from the file dialog so it doesnt combine 2 objs
+    void clearMesh();
+
+    friend class MainWindow; // for displaying stuff in the vertex lists
 };

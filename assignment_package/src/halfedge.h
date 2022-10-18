@@ -2,12 +2,13 @@
 # include <glm/glm.hpp>
 # include <vertex.h>
 # include <face.h>
+# include <QListWidgetItem>
 
 // provide forward declarations to avoid circular dependency
 class Face;
 class Vertex;
 
-class HalfEdge {
+class HalfEdge : public QListWidgetItem {
 private:
     HalfEdge *heNext; // at ptr to the next HalfEdge in the loop of HalfEdges that lie on this HalfEdges face
     HalfEdge *heSym; // a ptr to the parallel half edge on an adjacent face (symmetrical half edge)
@@ -20,8 +21,10 @@ public:
 
     // Constructors/Destructors
     HalfEdge(); // default constructor
-//    HalfEdge(HalfEdge *next, HalfEdge *sym, Face *face, Vertex *vert);
 
     friend class Mesh;
+    friend class HalfEdgeDisplay;
+    friend class FaceDisplay;
+    friend class MyGL;
 };
 

@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QListWidgetItem>
+#include "mesh.h"
 
 
 namespace Ui {
@@ -22,9 +24,7 @@ private slots:
 
     void on_actionCamera_Controls_triggered();
 
-    void on_pushButton_clicked();
-
-    void on_loadObjButton_clicked();
+    void slot_addToListWidget(Mesh*);
 
 private:
     Ui::MainWindow *ui;

@@ -6,14 +6,21 @@
 #include <QKeyEvent>
 #include <QFileDialog> // for the file selection button
 #include <QMessageBox>
-
+#include <QListWidgetItem>
 
 MyGL::MyGL(QWidget *parent)
     : OpenGLContext(parent),
       m_geomSquare(this),
       m_progLambert(this), m_progFlat(this),
       m_glCamera(),
-      m_mesh(this) // initialize the mesh
+      m_mesh(this), // initialize the mesh
+      mp_selected_vertex(nullptr), // member pointer to the selected vertex
+      mp_selected_face(nullptr), // member pointer to the selected face
+      mp_selected_halfEdge(nullptr), // member pointer to the selected half-edge
+      // Mouse click events
+      m_vertDisplay(this),
+      m_faceDisplay(this),
+      m_heDisplay(this)
 {
     setFocusPolicy(Qt::StrongFocus);
 }
@@ -52,13 +59,11 @@ void MyGL::initializeGL()
     //Create the instances of Cylinder and Sphere.
 //    m_geomSquare.create();
     m_mesh.create();
-    std::cout << "successfully created in mygl.cpp" << std::endl;
 
     // Create and set up the diffuse shader
     m_progLambert.create(":/glsl/lambert.vert.glsl", ":/glsl/lambert.frag.glsl");
     // Create and set up the flat lighting shader
     m_progFlat.create(":/glsl/flat.vert.glsl", ":/glsl/flat.frag.glsl");
-
 
     // We have to have a VAO bound in OpenGL 3.2 Core. But if we're not
     // using multiple VAOs, we can just bind one once.
@@ -103,6 +108,23 @@ void MyGL::paintGL()
     //Draw the example sphere using our lambert shader
 //    m_progLambert.draw(m_geomSquare);
     m_progLambert.draw(m_mesh);
+
+    // Draw the vertices, faces, and halfedges selected
+    glDisable(GL_DEPTH_TEST); // draw on top of mesh's triangles
+    if (mp_selected_vertex != NULL)
+    {
+        m_progFlat.draw(m_vertDisplay);
+    }
+    if (mp_selected_face != NULL)
+    {
+        m_progFlat.draw(m_faceDisplay);
+    }
+    if (mp_selected_halfEdge != NULL)
+    {
+        m_progFlat.draw(m_heDisplay);
+    }
+
+    glEnable(GL_DEPTH_TEST);
 
     //Now do the same to render the cylinder
     //We've rotated it -45 degrees on the Z axis, then translated it to the point <2,2,0>
@@ -149,6 +171,42 @@ void MyGL::keyPressEvent(QKeyEvent *e)
         m_glCamera.TranslateAlongUp(amount);
     } else if (e->key() == Qt::Key_R) {
         m_glCamera = Camera(this->width(), this->height());
+    } else if (e->key() == Qt::Key_N) {
+        if (mp_selected_halfEdge)
+        {
+            slot_selectHE(mp_selected_halfEdge->heNext);
+        }
+    } else if (e->key() == Qt::Key_M) {
+        if (mp_selected_halfEdge)
+        {
+            slot_selectHE(mp_selected_halfEdge->heSym);
+        }
+    } else if (e->key() == Qt::Key_F) {
+        if (mp_selected_halfEdge)
+        {
+            slot_selectFace(mp_selected_halfEdge->face);
+        }
+    } else if (e->key() == Qt::Key_V) {
+        if (mp_selected_halfEdge)
+        {
+            slot_selectVertex(mp_selected_halfEdge->vert);
+        }
+    } else if (e->key() == Qt::Key_H) {
+
+        if (amount == 2.0f) // just H
+        {
+            if (mp_selected_vertex)
+            {
+                slot_selectHE(mp_selected_vertex->halfEdge);
+            }
+        } else {
+            if (mp_selected_face)
+            {
+                slot_selectHE(mp_selected_face->halfEdge);
+            }
+        }
+
+
     }
     m_glCamera.RecomputeAttributes();
     update();  // Calls paintGL, among other things
@@ -160,7 +218,7 @@ void MyGL::slot_loadObj()
     const QString filename = QFileDialog::getOpenFileName(
                 this,
                 tr("Open OBJ File"), // title of the file dialog (basically the window that pops up)
-                "/home/nicholas/Documents/upenn/CIS560/homework", // Default file to open
+                "../", // Default file to open
                 "OBJ Files (*.obj)" // filter for obj files
                 );
     QMessageBox::information(this, tr("Selected File Name"), filename);
@@ -171,6 +229,42 @@ void MyGL::slot_loadObj()
     std::cout << my_str << std::endl;
 
     this->m_mesh.load_obj(my_str); // this creates the mesh
+    this->m_mesh.destroy();
     this->m_mesh.create();
+
+    // Make sure to display all of the vertices, faces, and halfedges in the list widgets
+    emit MyGL::sig_sendMesh(&m_mesh);
+
     this->update(); // Calls paintGL, among other things (taken from above in keyPressEvent)
+}
+
+void MyGL::slot_selectVertex(QListWidgetItem *i)
+{
+    this->mp_selected_face = NULL;
+    this->mp_selected_halfEdge = NULL;
+
+    this->mp_selected_vertex = static_cast<Vertex*>(i); // static_cast converts from QListWidgetItem ptr to Vertex ptr
+    m_vertDisplay.updateVertex(mp_selected_vertex);
+    m_vertDisplay.create();
+    this->update();
+}
+void MyGL::slot_selectFace(QListWidgetItem *i)
+{
+    this->mp_selected_vertex = NULL;
+    this->mp_selected_halfEdge = NULL;
+
+    this->mp_selected_face = static_cast<Face*>(i);
+    m_faceDisplay.updateFace(mp_selected_face);
+    m_faceDisplay.create();
+    this->update();
+}
+void MyGL::slot_selectHE(QListWidgetItem *i)
+{
+    this->mp_selected_vertex = NULL;
+    this->mp_selected_face = NULL;
+
+    this->mp_selected_halfEdge = static_cast<HalfEdge*>(i);
+    m_heDisplay.updateHalfEdge(mp_selected_halfEdge);
+    m_heDisplay.create();
+    this->update();
 }

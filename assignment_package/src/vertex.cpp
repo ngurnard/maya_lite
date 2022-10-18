@@ -3,19 +3,13 @@
 unsigned int Vertex::count = 0; // need to initialize the static variable count
 
 Vertex::Vertex()
-    : pos(), halfEdge(nullptr), id(count) // does this update count??
+    : pos(), halfEdge(nullptr), id(count++) // does this update count??
 {
-    count++;
+    this->setText("Vertex: " + QString::number(id));
 }
 
-//Vertex::Vertex(glm::vec3 position, HalfEdge *he)
-//    : pos(position), halfEdge(he), id(count)
-//{
-//    count++;
-//}
-
 Vertex::Vertex(glm::vec3 position)
-    : pos(position), halfEdge(nullptr), id(count)
+    : pos(position), halfEdge(nullptr), id(count++)
 {
-    count++;
+    this->setText("Vertex: " + QString::number(id));
 }
