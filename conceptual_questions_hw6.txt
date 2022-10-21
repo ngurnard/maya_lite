@@ -7,4 +7,4 @@ In lecture is what also discussed that is may be useful to store a temporary poi
 Question 2 (5 pts) 
 When extruding a face, what operation must be performed after all edges have been turned into quadrangles via the extrusion algorithm discussed in the lecture slides? What iteration of said operation must be specially handled?
 
-After all edges have been turned into quadrangles via the extrusion algorithm, setting the sym pointers between all of the new extruded faces must be accomplished. If only a single edge was extruded, then the sym pointer is set to NULL. The last iteration must be specially handled to connect the last extruded face to the first extruded face.
+After all edges have been turned into quadrangles via the extrusion algorithm, setting the sym pointers between all of the new extruded faces must be accomplished. If only a single edge was extruded, then the sym pointer is set to NULL. The last iteration must be specially handled to connect the last extruded face to the first extruded face (finishing the loop).
