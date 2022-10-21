@@ -1,0 +1,10 @@
+Question 1 (5 pts) 
+When quadrangulating a face during Catmull-Clark subdivision, what information must you temporarily store in order to properly link your half-edge pointers without creating inaccessible edges?
+
+When quadrangulating a face during Catmull-Clark subdivision, it is known that the face points to a vertex that was one of the original vertices berfore splitting the edges. So for these half-edges that point to an original vertex, then a temporary pointer to the next half edge that points to an original half edge must be stored. So in this case if you are at a half-edge, the temporary pointer would be the next_halfEdge->next_halfEdge
+In lecture is what also discussed that is may be useful to store a temporary pointer to the half-edge that points to the centroid for constructing the sym pointers later.
+
+Question 2 (5 pts) 
+When extruding a face, what operation must be performed after all edges have been turned into quadrangles via the extrusion algorithm discussed in the lecture slides? What iteration of said operation must be specially handled?
+
+After all edges have been turned into quadrangles via the extrusion algorithm, setting the sym pointers between all of the new extruded faces must be accomplished. If only a single edge was extruded, then the sym pointer is set to NULL. The last iteration must be specially handled to connect the last extruded face to the first extruded face.
