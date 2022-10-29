@@ -330,28 +330,38 @@ void Mesh::splitHE(HalfEdge *he1)
     halfEdges.push_back(std::move(he2b));
 }
 
-
 void Mesh::triangulate(Face *f)
 {
     HalfEdge* he0 = f->halfEdge;
 
-    // Instantiate the 2 new halfedges as a result of the split
-    uPtr<HalfEdge> hea = mkU<HalfEdge>(); // instatiate HalfEdge object
-    uPtr<HalfEdge> heb = mkU<HalfEdge>(); // instatiate HalfEdge object
+    while (he0->heNext->heNext->heNext->id != he0->id)
+    {
+        // Instantiate the 2 new halfedges as a result of the split
+        uPtr<HalfEdge> hea = mkU<HalfEdge>(); // instatiate HalfEdge object
+        uPtr<HalfEdge> heb = mkU<HalfEdge>(); // instatiate HalfEdge object
 
-    // Ensure the attributes of the new halfedges follow HE data structure
-    hea->vert = he0->vert;
-    heb->vert = he0->heNext->heNext->vert;
+        // Ensure the attributes of the new halfedges follow HE data structure
+        hea->vert = he0->vert;
+        heb->vert = he0->heNext->heNext->vert;
 
-    hea->heSym = heb.get();
-    heb->heSym = hea.get();
+        hea->heSym = heb.get();
+        heb->heSym = hea.get();
 
-    uPtr<Face> f2 = mkU<Face>(); // Instatiate a face object
-    hea->face = f2.get();
-    he0->heNext->face = f2.get();
-    he0->heNext->heNext->face = f2.get();
-    heb->face = f;
-    f2->halfEdge = hea.get();
+        uPtr<Face> f2 = mkU<Face>(); // Instatiate a face object
+        f2->color = genRandColor(); // assign random color to the new face
+        hea->face = f2.get();
+        he0->heNext->face = f2.get();
+        he0->heNext->heNext->face = f2.get();
+        heb->face = f;
+        f2->halfEdge = hea.get();
 
-    heb->heNext = he0->heNext->heNext->heNext;
+        heb->heNext = he0->heNext->heNext->heNext;
+        he0->heNext->heNext->heNext = hea.get();;
+        hea->heNext = he0->heNext;
+        he0->heNext = heb.get();
+
+        faces.push_back(std::move(f2));
+        halfEdges.push_back(std::move(hea));
+        halfEdges.push_back(std::move(heb));
+    }
 }

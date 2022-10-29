@@ -279,11 +279,109 @@ void MyGL::slot_selectHE(QListWidgetItem *i)
     emit sig_setFocus();
 }
 
-void MyGL::slot_triangulate()
+void MyGL::slot_splitHE()
 {
     if (this->mp_selected_halfEdge != nullptr)
     {
         m_mesh.splitHE(this->mp_selected_halfEdge);
+        emit sig_sendMesh(&m_mesh);
+        this->m_mesh.destroy();
+        this->m_mesh.create();
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_triangulate()
+{
+    if (this->mp_selected_face != nullptr)
+    {
+        m_mesh.triangulate(this->mp_selected_face);
+        emit sig_sendMesh(&m_mesh);
+        this->m_mesh.destroy();
+        this->m_mesh.create();
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_modVertPosX(double xx)
+{
+    if (this->mp_selected_vertex != nullptr)
+    {
+        this->mp_selected_vertex->pos.x = xx;
+        emit sig_sendMesh(&m_mesh);
+        this->m_mesh.destroy();
+        this->m_mesh.create();
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_modVertPosY(double yy)
+{
+    if (this->mp_selected_vertex != nullptr)
+    {
+        this->mp_selected_vertex->pos.y = yy;
+        emit sig_sendMesh(&m_mesh);
+        this->m_mesh.destroy();
+        this->m_mesh.create();
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_modVertPosZ(double zz)
+{
+    if (this->mp_selected_vertex != nullptr)
+    {
+        this->mp_selected_vertex->pos.z = zz;
+        emit sig_sendMesh(&m_mesh);
+        this->m_mesh.destroy();
+        this->m_mesh.create();
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_modFaceRed(double rr)
+{
+    if (this->mp_selected_face != nullptr)
+    {
+        this->mp_selected_face->color.r = rr;
+        emit sig_sendMesh(&m_mesh);
+        this->m_mesh.destroy();
+        this->m_mesh.create();
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_modFaceGreen(double gg)
+{
+    if (this->mp_selected_face != nullptr)
+    {
+        this->mp_selected_face->color.g = gg;
+        emit sig_sendMesh(&m_mesh);
+        this->m_mesh.destroy();
+        this->m_mesh.create();
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_modFaceBlue(double bb)
+{
+    if (this->mp_selected_face != nullptr)
+    {
+        this->mp_selected_face->color.b = bb;
         emit sig_sendMesh(&m_mesh);
         this->m_mesh.destroy();
         this->m_mesh.create();

@@ -26,6 +26,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Connect the gui split edge button to the split edge function (slot)
     connect(ui->splitEdge, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_splitHE()));
+
+    // Connect the gui traingulate button to the triangulate slot
+    connect(ui->triangulate, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_triangulate()));
+
+    // Connect the gui spin boxes to the slot_modAttributes
+    connect(ui->vertPosXSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modVertPosX(double)));
+    connect(ui->vertPosYSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modVertPosY(double)));
+    connect(ui->vertPosZSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modVertPosZ(double)));
+    connect(ui->faceRedSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modFaceRed(double)));
+    connect(ui->faceGreenSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modFaceGreen(double)));
+    connect(ui->faceBlueSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modFaceBlue(double)));
 }
 
 MainWindow::~MainWindow()

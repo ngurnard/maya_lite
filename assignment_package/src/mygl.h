@@ -68,6 +68,12 @@ public slots:
     // Slots for subdivision
     void slot_splitHE();
     void slot_triangulate();
+    void slot_modVertPosX(double xx); // to change the vertices with the spin boxes
+    void slot_modVertPosY(double yy);
+    void slot_modVertPosZ(double zz);
+    void slot_modFaceRed(double xx); // to change the colors with the spin boxes
+    void slot_modFaceGreen(double yy);
+    void slot_modFaceBlue(double zz);
 };
 
 
