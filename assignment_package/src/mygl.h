@@ -65,7 +65,7 @@ public slots:
     void slot_selectVertex(QListWidgetItem*);
     void slot_selectFace(QListWidgetItem*);
     void slot_selectHE(QListWidgetItem*); // selecting a half edge in the gui
-    // Slots for subdivision
+    // Slots for attribute modification
     void slot_splitHE();
     void slot_triangulate();
     void slot_modVertPosX(double xx); // to change the vertices with the spin boxes
@@ -74,6 +74,8 @@ public slots:
     void slot_modFaceRed(double xx); // to change the colors with the spin boxes
     void slot_modFaceGreen(double yy);
     void slot_modFaceBlue(double zz);
+
+    void slot_subdivide(); // subdivision slot
 };
 
 

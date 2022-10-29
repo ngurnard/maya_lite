@@ -289,7 +289,7 @@ void Mesh::create()
     idx.clear();
 }
 
-void Mesh::splitHE(HalfEdge *he1)
+void Mesh::splitHE(HalfEdge *he1, Vertex* existing_midpt = nullptr)
 {
     // Get the other symmetric ptr
     HalfEdge* he2 = he1->heSym;
@@ -300,6 +300,10 @@ void Mesh::splitHE(HalfEdge *he1)
 
     // Instantiate the new midpoint vertex
     uPtr<Vertex> mid_vptr = mkU<Vertex>((vert2->pos + vert1->pos)/2.f); // instantiate vert and make unique ptr to it
+    if (existing_midpt != nullptr)
+    {
+        mid_vptr = std::move(vertices.back());
+    }
 
     // Instantiate the 2 new halfedges as a result of the split
     uPtr<HalfEdge> he1b = mkU<HalfEdge>(); // instatiate HalfEdge object
@@ -325,7 +329,10 @@ void Mesh::splitHE(HalfEdge *he1)
     he2->heSym = he1b.get();
     he1b->heSym = he2;
 
-    vertices.push_back(std::move(mid_vptr));
+    if (existing_midpt == nullptr)
+    {
+        vertices.push_back(std::move(mid_vptr));
+    }
     halfEdges.push_back(std::move(he1b));
     halfEdges.push_back(std::move(he2b));
 }
@@ -364,4 +371,92 @@ void Mesh::triangulate(Face *f)
         halfEdges.push_back(std::move(hea));
         halfEdges.push_back(std::move(heb));
     }
+}
+
+void Mesh::computeCentroid(Face &f)
+{
+    glm::vec3 centroid(0,0,0);
+    int num_verts = 0;
+
+    // Iterate over the half edges to get vertex position info
+    HalfEdge *curr = f.halfEdge; // make a raw pointer to the halfEdge for this face
+    do {
+        // Add the vert position to the centroid vector
+        centroid += curr->vert->pos;
+
+        // Update the current half edge to the next half edge
+        curr = curr->heNext; // get the next half edge
+
+        // Update the current vertex number
+        ++num_verts;
+    } while (curr != f.halfEdge);
+
+    centroid /= num_verts;
+
+    uPtr<Vertex> vptr = mkU<Vertex>(centroid); // instantiate vert and make unique ptr to it
+    this->vertices.push_back(std::move(vptr)); // put the uPtr in the verts list
+}
+
+void Mesh::computeMidpoints(Mesh &mesh, std::unordered_map<Face*, Vertex*> &centroidMap)
+{
+    std::unordered_map<HalfEdge*, int> uniqueEdgeMap; // Don't want to make a midpoint for the same edge twice
+    // Iterate over the half edcurr_hePtrges to get vertex position info
+    for (auto &he : mesh.halfEdges) {
+        auto search = uniqueEdgeMap.find(he.get());
+        if (search == uniqueEdgeMap.end()) // if this key does NOT exist, create the key, value pair
+        {
+            uniqueEdgeMap[he.get()] = 0;
+            uniqueEdgeMap[he->heSym] = 0;
+
+            HalfEdge *curr = he.get(); // make a raw pointer to the first halfEdge
+
+            if (curr->heSym->face) // if the symmetric pointer has a face
+            {
+                glm::vec3 midPos = (curr->vert->pos + curr->heSym->vert->pos +
+                                    centroidMap.at(curr->face)->pos + centroidMap.at(curr->heSym->face)->pos)/4.f;
+//                uPtr<Vertex> vptr = mkU<Vertex>(midPos); // instantiate vert and make unique ptr to it
+                Vertex vptr = Vertex(midPos);
+                splitHE(curr, &vptr);
+//                this->vertices.push_back(std::move(vptr)); // put the uPtr in the verts list
+            }
+            else
+            {
+                glm::vec3 midPos = (curr->vert->pos + curr->heSym->vert->pos +
+                                    centroidMap.at(curr->face)->pos)/3.f;
+//                uPtr<Vertex> vptr = mkU<Vertex>(midPos); // instantiate vert and make unique ptr to it
+                Vertex vptr = Vertex(midPos);
+                splitHE(curr, &vptr);
+//                this->vertices.push_back(std::move(vptr)); // put the uPtr in the verts list
+            }
+        }
+    }
+}
+
+void Mesh::subdivide()
+{
+    // 1. add new centroids and edge vertices first
+    // 2. move the original vertices inward
+    // 3. connect these vertices with half edges
+    // 4. write a quadrangulate function to quadragulate a face given the new vertices
+
+    // Store the original vertices so that we can do smoothing later
+    std::vector<Vertex*> og_verts;
+    for (auto &vert : vertices)
+    {
+        og_verts.push_back(vert.get());
+    }
+
+    // Compute centroids
+    std::unordered_map<Face*, Vertex*> centroidMap;
+    for (auto &f : faces)
+    {
+        computeCentroid(*f); // compute the centroid for this face (appended to vertices)
+        centroidMap[f.get()] = vertices.back().get(); // make a map of the faces and their centroids
+    }
+
+    // Compute midpoints (edge vertices)
+    computeMidpoints(*this, centroidMap); // New midpoints are added to the vertices list
+
+    // Smooth the original vertices
+
 }

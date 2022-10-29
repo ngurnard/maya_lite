@@ -31,6 +31,13 @@ public:
 
     friend class MainWindow; // for displaying stuff in the vertex lists
 
-    void splitHE(HalfEdge *he);
+    // attribute modification functions
+//    void splitHE(HalfEdge *he);
+    void splitHE(HalfEdge *he, Vertex* existing_midpt);
     void triangulate(Face *f);
+
+    // subdivision member functions
+    void subdivide();
+    void computeCentroid(Face &f);
+    void computeMidpoints(Mesh &mesh, std::unordered_map<Face*, Vertex*> &centroidMap);
 };

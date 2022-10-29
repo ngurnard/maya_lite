@@ -25,6 +25,12 @@ https://cplusplus.com/reference/vector/vector/clear/
 https://stackoverflow.com/questions/594089/does-stdvector-clear-do-delete-free-memory-on-each-element
 It doesn't but for some reason commenting out the clear worked. I would like to as a TA/the professor why that is.
 
+Question 5:
+What is the datatype for the QWidgetList??
+Answer (Oct 29, 00:49)
+https://doc.qt.io/qt-6/qspinbox.html
+
+
 
 
 

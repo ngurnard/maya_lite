@@ -344,6 +344,19 @@
      <string>Triangulate Face</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="subdivide">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>450</y>
+      <width>141</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Subdivide</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

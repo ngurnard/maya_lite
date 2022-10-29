@@ -37,6 +37,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->faceRedSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modFaceRed(double)));
     connect(ui->faceGreenSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modFaceGreen(double)));
     connect(ui->faceBlueSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modFaceBlue(double)));
+
+    // Connect the gui subdivide button to the subdivide slot
+    connect(ui->subdivide, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_subdivide()));
 }
 
 MainWindow::~MainWindow()

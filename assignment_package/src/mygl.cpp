@@ -390,3 +390,13 @@ void MyGL::slot_modFaceBlue(double bb)
 
     emit sig_setFocus();
 }
+
+void MyGL::slot_subdivide()
+{
+    std::cout << "subdividing..." << std::endl;
+    m_mesh.subdivide();
+    emit sig_sendMesh(&m_mesh);
+    this->m_mesh.destroy();
+    this->m_mesh.create();
+    this->update();
+}
