@@ -26,6 +26,8 @@ private slots:
 
     void slot_addToListWidget(Mesh*);
 
+    void slot_setFocus();
+
 private:
     Ui::MainWindow *ui;
 };

@@ -49,9 +49,15 @@ Camera::Camera(const Camera &c):
 
 void Camera::RecomputeAttributes()
 {
-    look = glm::normalize(ref - eye);
-    right = glm::normalize(glm::cross(look, world_up));
-    up = glm::cross(right, look);
+    // Transoformation relative to original cartesian directions!
+    glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(theta), glm::vec3(0, 1, 0))
+                  * glm::rotate(glm::mat4(1.0f), glm::radians(phi), glm::vec3(1, 0, 0));
+    glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, zoom));
+
+    eye = glm::vec3(rot * trans * glm::vec4(0, 0, 0, 1));
+    right = glm::vec3(rot * glm::vec4(1, 0, 0, 0));
+    up = glm::vec3(rot * glm::vec4(0, 1, 0, 0));
+    look = glm::vec3(rot * glm::vec4(0, 0, 1, 0));
 
     float tan_fovy = tan(glm::radians(fovy/2));
     float len = glm::length(ref - eye);
@@ -67,26 +73,18 @@ glm::mat4 Camera::getViewProj()
 
 void Camera::RotateAboutUp(float deg)
 {
-    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(deg), up);
-    ref = ref - eye;
-    ref = glm::vec3(rotation * glm::vec4(ref, 1));
-    ref = ref + eye;
+    this->theta += deg;
     RecomputeAttributes();
 }
 void Camera::RotateAboutRight(float deg)
 {
-    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(deg), right);
-    ref = ref - eye;
-    ref = glm::vec3(rotation * glm::vec4(ref, 1));
-    ref = ref + eye;
+    this->phi += deg;
     RecomputeAttributes();
 }
 
 void Camera::TranslateAlongLook(float amt)
 {
-    glm::vec3 translation = look * amt;
-    eye += translation;
-    ref += translation;
+    this->zoom -= amt; // minus because look is along -z
 }
 
 void Camera::TranslateAlongRight(float amt)

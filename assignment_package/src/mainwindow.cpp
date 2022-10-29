@@ -9,6 +9,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->mygl->setFocus(); // ui->mygl points to the myl window of the ui (where the geom is shown) 
 
+    // Connect the gui to update the focus such that you dont have to click mygl in order to see updates
+    connect(ui->mygl, SIGNAL(sig_setFocus()), this, SLOT(slot_setFocus()));
+
     // Connect the obj button to import a .obj file
     // (sender, signal, receiver, slot)
     connect(ui->loadObjButton, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_loadObj()));
@@ -18,8 +21,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->facesListWidget, SIGNAL(itemClicked(QListWidgetItem*)), ui->mygl, SLOT(slot_selectFace(QListWidgetItem*)));
     connect(ui->halfEdgesListWidget, SIGNAL(itemClicked(QListWidgetItem*)), ui->mygl, SLOT(slot_selectHE(QListWidgetItem*)));
 
-    // Connect the selected faces, verts, and halfEdges to the gui
+    // Connect the selected faces, verts, and halfEdges to the gui list widget
     connect(ui->mygl, SIGNAL(sig_sendMesh(Mesh*)), this, SLOT(slot_addToListWidget(Mesh*)));
+
+    // Connect the gui split edge button to the split edge function (slot)
+    connect(ui->splitEdge, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_splitHE()));
 }
 
 MainWindow::~MainWindow()
@@ -40,9 +46,10 @@ void MainWindow::on_actionCamera_Controls_triggered()
 
 void MainWindow::slot_addToListWidget(Mesh *m) {
 
-    ui->facesListWidget->clear();
-    ui->vertsListWidget->clear();
-    ui->halfEdgesListWidget->clear();
+    // Ask why this breaks the code
+    // ui->facesListWidget->clear();
+    // ui->vertsListWidget->clear();
+    // ui->halfEdgesListWidget->clear();
 
     for (auto &f : m->faces)
     {
@@ -57,4 +64,9 @@ void MainWindow::slot_addToListWidget(Mesh *m) {
         ui->halfEdgesListWidget->addItem(he.get());
     }
 
+}
+
+void MainWindow::slot_setFocus()
+{
+    ui->mygl->setFocus();
 }

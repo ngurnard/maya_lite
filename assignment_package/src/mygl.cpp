@@ -247,7 +247,10 @@ void MyGL::slot_selectVertex(QListWidgetItem *i)
     m_vertDisplay.updateVertex(mp_selected_vertex);
     m_vertDisplay.create();
     this->update();
+
+    emit sig_setFocus();
 }
+
 void MyGL::slot_selectFace(QListWidgetItem *i)
 {
     // Make it so only the selected displays
@@ -258,7 +261,10 @@ void MyGL::slot_selectFace(QListWidgetItem *i)
     m_faceDisplay.updateFace(mp_selected_face);
     m_faceDisplay.create();
     this->update();
+
+    emit sig_setFocus();
 }
+
 void MyGL::slot_selectHE(QListWidgetItem *i)
 {
     // Make it so only the selected displays
@@ -269,4 +275,20 @@ void MyGL::slot_selectHE(QListWidgetItem *i)
     m_heDisplay.updateHalfEdge(mp_selected_halfEdge);
     m_heDisplay.create();
     this->update();
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_triangulate()
+{
+    if (this->mp_selected_halfEdge != nullptr)
+    {
+        m_mesh.splitHE(this->mp_selected_halfEdge);
+        emit sig_sendMesh(&m_mesh);
+        this->m_mesh.destroy();
+        this->m_mesh.create();
+        this->update();
+    }
+
+    emit sig_setFocus();
 }

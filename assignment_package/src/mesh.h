@@ -30,4 +30,7 @@ public:
     void clearMesh();
 
     friend class MainWindow; // for displaying stuff in the vertex lists
+
+    void splitHE(HalfEdge *he);
+    void triangulate(Face *f);
 };

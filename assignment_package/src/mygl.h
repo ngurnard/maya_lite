@@ -57,6 +57,7 @@ protected:
 
 signals:
     void sig_sendMesh(Mesh*);
+    void sig_setFocus();
 
 public slots:
     void slot_loadObj(); // call the load obj function to set the mesh in mygl
@@ -64,6 +65,9 @@ public slots:
     void slot_selectVertex(QListWidgetItem*);
     void slot_selectFace(QListWidgetItem*);
     void slot_selectHE(QListWidgetItem*); // selecting a half edge in the gui
+    // Slots for subdivision
+    void slot_splitHE();
+    void slot_triangulate();
 };
 
 

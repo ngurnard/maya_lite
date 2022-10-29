@@ -1,0 +1,33 @@
+----------------------------------------------------------------------
+QUESTION AND ANSWERS ONLINE
+----------------------------------------------------------------------
+Question 1:
+What angle does phi and theta represent respectively in polar coordinates?
+Answer (Oct 28, 17:32)
+https://en.wikipedia.org/wiki/Spherical_coordinate_system
+It is also in the PDF but this resource is what helped me implement the camera class
+
+Question 2:
+How can I rotate in glm without making a matrix mat4 everytime?
+Answer (Oct 28, 17:40)
+https://stackoverflow.com/questions/8844585/glm-rotate-usage-in-opengl
+
+Question 3:
+How do I use glm::translate? Why is it saying that a function call with an identity matrix and a vec4 not found?
+Answer (Oct 28, 18:07)
+https://stackoverflow.com/questions/59222806/how-does-glm-handle-translation
+I had to use a glm::vec3
+
+Question 4:
+Is using clear() on my vector deleting my QWidgetList?? I am getting a non existent widget
+Answer (Oct 28, 21:22)
+https://cplusplus.com/reference/vector/vector/clear/
+https://stackoverflow.com/questions/594089/does-stdvector-clear-do-delete-free-memory-on-each-element
+It doesn't but for some reason commenting out the clear worked. I would like to as a TA/the professor why that is.
+
+
+
+
+----------------------------------------------------------------------
+COLLABORATORS
+----------------------------------------------------------------------

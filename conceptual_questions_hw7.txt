@@ -1,0 +1,9 @@
+Question 1 (5 pts) 
+What visual errors may occur when using linear blend skinning for a mesh? Why do these errors occur?
+
+Linearly interpolating rotation matrices will not work as expected, it will create a scaling skew issue. This happens when rotated in certain ways such that the the numbers inside of the rotation matrix no longer represent sine and cosine outputs. The mesh will collapse as joints are rotated (doesn't preserve volume). In addition, linearly assigning weights to vertices in the mesh can approximate some useful weights, but does not account for mesh connectivity and can create strange artifacts.
+    
+Question 2 (5 pts) 
+Since one cannot insert breakpoints into a GLSL shader program, how might one debug a shader? For example, if one were writing a vertex shader that applies a mesh skinning deformation, how might one determine which vertices are influenced by a particular joint? Consider what alterations to your fragment shader might be useful to test this.
+
+Visually outputing something distinctive to the screen would be the easiest method in which to debug a shader. For example, each joint can be assigned a distinctive color that is not similar to the joints around it, and then the vertices bound to that joint can be assigned a color based on its distance from the joint (such as a gradient heat map) within the fragment shader. If the color doesn't make sense for a particular vertex and joint pair, then it can be assumed that there is a bug there. Additionally, if a vertex is influenced by multiple joints then the color can be a blend between the distinctive colors of the respective joints.

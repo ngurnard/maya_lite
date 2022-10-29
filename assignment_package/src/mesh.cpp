@@ -53,7 +53,6 @@ void Mesh::clearMesh()
 
 void Mesh::load_obj(const char* file_name)
 {
-
     // clear mesh
     clearMesh();
 
@@ -288,5 +287,71 @@ void Mesh::create()
 
     // Free up memory now that we no longer need the vertex info to be stored on the CPU
     idx.clear();
+}
 
+void Mesh::splitHE(HalfEdge *he1)
+{
+    // Get the other symmetric ptr
+    HalfEdge* he2 = he1->heSym;
+
+    // Get the vertices of the halfedge that is getting split
+    Vertex* vert1 = he1->vert;
+    Vertex* vert2 = he2->vert;
+
+    // Instantiate the new midpoint vertex
+    uPtr<Vertex> mid_vptr = mkU<Vertex>((vert2->pos + vert1->pos)/2.f); // instantiate vert and make unique ptr to it
+
+    // Instantiate the 2 new halfedges as a result of the split
+    uPtr<HalfEdge> he1b = mkU<HalfEdge>(); // instatiate HalfEdge object
+    uPtr<HalfEdge> he2b = mkU<HalfEdge>(); // instatiate HalfEdge object
+
+    // Make the new halfedges point to the original vertices and the correct face, plus the og heNext
+    he1b->vert = vert1;
+    he1b->face = he1->face;
+    he1b->heNext = he1->heNext;
+
+    he2b->vert = vert2;
+    he2b->face = he2->face;
+    he2b->heNext = he2->heNext;
+
+    // Ensure the attributes of the new vert and halfedges follow HE data structure
+    he1->heNext = he1b.get();
+    he1->vert = mid_vptr.get();
+    he1->heSym = he2b.get();
+    he2b->heSym = he1;
+
+    he2->heNext = he2b.get();
+    he2->vert = mid_vptr.get();
+    he2->heSym = he1b.get();
+    he1b->heSym = he2;
+
+    vertices.push_back(std::move(mid_vptr));
+    halfEdges.push_back(std::move(he1b));
+    halfEdges.push_back(std::move(he2b));
+}
+
+
+void Mesh::triangulate(Face *f)
+{
+    HalfEdge* he0 = f->halfEdge;
+
+    // Instantiate the 2 new halfedges as a result of the split
+    uPtr<HalfEdge> hea = mkU<HalfEdge>(); // instatiate HalfEdge object
+    uPtr<HalfEdge> heb = mkU<HalfEdge>(); // instatiate HalfEdge object
+
+    // Ensure the attributes of the new halfedges follow HE data structure
+    hea->vert = he0->vert;
+    heb->vert = he0->heNext->heNext->vert;
+
+    hea->heSym = heb.get();
+    heb->heSym = hea.get();
+
+    uPtr<Face> f2 = mkU<Face>(); // Instatiate a face object
+    hea->face = f2.get();
+    he0->heNext->face = f2.get();
+    he0->heNext->heNext->face = f2.get();
+    heb->face = f;
+    f2->halfEdge = hea.get();
+
+    heb->heNext = he0->heNext->heNext->heNext;
 }

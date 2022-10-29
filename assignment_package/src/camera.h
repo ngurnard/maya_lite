@@ -20,6 +20,11 @@ public:
     //Computed attributes
     float aspect;
 
+    // Spherical (Polar) coordinate member variables
+    float phi = 0;
+    float theta = 0;
+    float zoom = 10; // how far to translate along the forward vector. Chose 10 bc that is what was in the constructor
+
     glm::vec3 eye,      //The position of the camera in world space
               ref,      //The point in world space towards which the camera is pointing
               look,     //The normalized vector from eye to ref. Is also known as the camera's "forward" vector.
