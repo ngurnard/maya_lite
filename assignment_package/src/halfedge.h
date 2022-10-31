@@ -22,6 +22,9 @@ public:
     // Constructors/Destructors
     HalfEdge(); // default constructor
 
+    void setFace(Face *f);
+    void setVertex(Vertex *v);
+
     friend class Mesh;
     friend class HalfEdgeDisplay;
     friend class FaceDisplay;

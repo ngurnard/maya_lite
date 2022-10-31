@@ -306,12 +306,12 @@ void Mesh::splitHE(HalfEdge *he1, Vertex* existing_midpt)
     uPtr<HalfEdge> he2b = mkU<HalfEdge>(); // instatiate HalfEdge object
 
     // Make the new halfedges point to the original vertices and the correct face, plus the og heNext
-    he1b->vert = vert1;
-    he1b->face = he1->face;
+    he1b->setVertex(vert1);
+    he1b->setFace(he1->face);
     he1b->heNext = he1->heNext;
 
-    he2b->vert = vert2;
-    he2b->face = he2->face;
+    he2b->setVertex(vert2);
+    he2b->setFace(he2->face);
     he2b->heNext = he2->heNext;
 
     // Ensure the attributes of the new vert and halfedges follow HE data structure
@@ -474,13 +474,74 @@ void Mesh::smoothOGVerts(std::vector<Vertex*> &og_verts, std::unordered_map<Face
     }
 }
 
+void Mesh::quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap)
+{
+    for (auto &f : faces) // for all of the original faces, we will quadrangulate it
+    {
+        std::cout << "Printing vertex ids " << f->halfEdge->vert->id << std::endl;
+
+        // form 4 little loops by making hald edges around each loop
+        // store a temp pointer to the next yellow half edge in the cycle before sealing off face ring
+        // store last iterations half edge that goes to centroid to make sym pointers
+        // handle the edge case for the last iteration setting up the half edge sym pointer
+
+        int iter = 0;
+        HalfEdge* curr = f->halfEdge;
+        // Loop through the half edges
+        do {
+            std::cout << "Iteration : " << iter << std::endl;
+            // Instantiate the 2 new halfedges
+            uPtr<HalfEdge> he1b = mkU<HalfEdge>(); // points to the centroid
+            uPtr<HalfEdge> he2b = mkU<HalfEdge>(); // points to the midpoint that is behind the current HE
+
+            // Instantiate a new face
+            uPtr<Face> new_face = mkU<Face>();
+
+            // Create useful temp pointers
+            HalfEdge* tempEdge = curr->heNext->heNext;
+            HalfEdge* temp_he1b = he1b.get();
+            HalfEdge* temp_he2b = nullptr;
+
+            // Create the loop
+            // the current edge
+            curr->setFace(new_face.get());
+            // edge that is after curr
+            curr->heNext = he1b.get();
+            curr->heNext->setFace(new_face.get());
+            // edge that points to centroid
+            he1b->heNext = he2b.get();
+            he1b->setVertex(centroidMap.find(f.get())->second);
+            he2b->setFace(new_face.get());
+            // edge that points to midpt (the edge before curr)
+            he2b->heNext = curr;
+            he2b->setVertex(curr->heSym->vert);
+            he2b->setFace(new_face.get());
+
+            // set up the sym pointers
+            if (iter == 0){ // store he2b to match the sym later
+                temp_he2b = he2b.get();
+            } else if (iter != 0){
+                he2b->heSym = temp_he1b;
+            }
+            if (tempEdge == f->halfEdge) { // edge case for the last iteration
+                he1b->heSym = temp_he2b;
+            }
+
+            // push the new half edges and face to the mesh component lists
+            faces.push_back(std::move(f));
+            halfEdges.push_back(std::move(he1b));
+            halfEdges.push_back(std::move(he2b));
+
+            // Iterate curr and iter
+            curr = tempEdge;
+            iter++;
+        } while (curr != f->halfEdge);
+
+    }
+}
+
 void Mesh::subdivide()
 {
-    // 1. add new centroids and edge vertices first
-    // 2. move the original vertices inward
-    // 3. connect these vertices with half edges
-    // 4. write a quadrangulate function to quadragulate a face given the new vertices
-
     // Store the original vertices so that we can do smoothing later
     std::vector<Vertex*> og_verts;
     for (auto &vert : vertices)
@@ -503,6 +564,9 @@ void Mesh::subdivide()
     smoothOGVerts(og_verts, centroidMap);
 
     // Quadrangulate the new vertices
+    quadrangulate(centroidMap);
+
+
     for (auto &v : vertices)
     {
         std::cout << "Index, pos: {" << v->id << ", (" << v->pos.x << ", " << v->pos.y << ", " << v->pos.z << ")}" << std::endl;

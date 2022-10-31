@@ -21,4 +21,5 @@ public:
     friend class Mesh;
     friend class FaceDisplay;
     friend class MyGL;
+    friend class HalfEdge;
 };

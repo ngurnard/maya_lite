@@ -41,4 +41,5 @@ public:
     void computeCentroid(Face &f);
     std::unordered_map<HalfEdge*, Vertex*> computeMidpoints(Mesh &mesh, std::unordered_map<Face*, Vertex*> &centroidMap);
     void smoothOGVerts(std::vector<Vertex*> &og_verts, std::unordered_map<Face*, Vertex*> &centroidMap);
+    void quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap);
 };
