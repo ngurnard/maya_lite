@@ -488,6 +488,7 @@ void Mesh::quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap)
         int iter = 0;
         HalfEdge* start = f->halfEdge;
         HalfEdge* curr = start;
+        HalfEdge* temp_he2b = nullptr; // create a useful temp pointer for syms
         // Loop through the half edges
         do {
             std::cout << "Iteration : " << iter << std::endl;
@@ -503,11 +504,8 @@ void Mesh::quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap)
             // Create useful temp pointers
             HalfEdge* tempEdge = curr->heNext->heNext;
             HalfEdge* temp_he1b = he1b.get();
-            HalfEdge* temp_he2b = nullptr;
 
             // Create the loop
-            // the current edge
-            curr->setFace(new_face.get());
             // edge that is after curr
             curr->heNext = he1b.get();
             curr->heNext->setFace(new_face.get());
@@ -519,16 +517,20 @@ void Mesh::quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap)
             he2b->heNext = curr;
             he2b->setVertex(curr->heSym->vert);
             he2b->setFace(new_face.get());
+            // the current edge
+            curr->setFace(new_face.get());
 
             // set up the sym pointers
             if (iter == 0){ // store he2b to match the sym later (edge case in last iter)
                 temp_he2b = he2b.get();
+                std::cout << "Resetting temp he2b: " << temp_he2b << std::endl;
             } else if (iter != 0){
                 he2b->heSym = temp_he1b;
                 temp_he1b->heSym = he2b.get();
-//                std::cout << "Checking syms: face->HE, HE->vert : {" << f->halfEdge->id << ", " << f->halfEdge->vert->id << "}" << std::endl;
+                std::cout << "Checking temp he2b: " << temp_he2b << std::endl;
             }
             if (tempEdge == f->halfEdge) { // edge case for the last iteration
+                std::cout << "Checking  if temp_he2b is null: " << temp_he2b << std::endl;
                 he1b->heSym = temp_he2b;
                 temp_he2b->heSym = he1b.get();
             }
@@ -578,9 +580,9 @@ void Mesh::subdivide()
     quadrangulate(centroidMap);
 
 
-    for (auto &v : vertices)
-    {
-        std::cout << "Index, pos: {" << v->id << ", (" << v->pos.x << ", " << v->pos.y << ", " << v->pos.z << ")}" << std::endl;
-    }
+//    for (auto &v : vertices)
+//    {
+//        std::cout << "Index, pos: {" << v->id << ", (" << v->pos.x << ", " << v->pos.y << ", " << v->pos.z << ")}" << std::endl;
+//    }
 
 }
