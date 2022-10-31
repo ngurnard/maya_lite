@@ -289,7 +289,7 @@ void Mesh::create()
     idx.clear();
 }
 
-void Mesh::splitHE(HalfEdge *he1, Vertex* existing_midpt = nullptr)
+void Mesh::splitHE(HalfEdge *he1, Vertex* existing_midpt)
 {
     // Get the other symmetric ptr
     HalfEdge* he2 = he1->heSym;
@@ -299,11 +299,7 @@ void Mesh::splitHE(HalfEdge *he1, Vertex* existing_midpt = nullptr)
     Vertex* vert2 = he2->vert;
 
     // Instantiate the new midpoint vertex
-    uPtr<Vertex> mid_vptr = mkU<Vertex>((vert2->pos + vert1->pos)/2.f); // instantiate vert and make unique ptr to it
-    if (existing_midpt != nullptr)
-    {
-        mid_vptr = std::move(vertices.back());
-    }
+    uPtr<Vertex> mid_vptr = mkU<Vertex>((vert2->pos + vert1->pos)/2.f);; // instantiate vert and make unique ptr to it
 
     // Instantiate the 2 new halfedges as a result of the split
     uPtr<HalfEdge> he1b = mkU<HalfEdge>(); // instatiate HalfEdge object
@@ -320,16 +316,30 @@ void Mesh::splitHE(HalfEdge *he1, Vertex* existing_midpt = nullptr)
 
     // Ensure the attributes of the new vert and halfedges follow HE data structure
     he1->heNext = he1b.get();
-    he1->vert = mid_vptr.get();
+    if (existing_midpt == nullptr)
+    {
+        he1->vert = mid_vptr.get();
+    } else {
+        he1->vert = existing_midpt;
+    }
     he1->heSym = he2b.get();
     he2b->heSym = he1;
 
     he2->heNext = he2b.get();
-    he2->vert = mid_vptr.get();
+    if (existing_midpt == nullptr)
+    {
+        he2->vert = mid_vptr.get();
+    } else {
+        he2->vert = existing_midpt;
+    }
     he2->heSym = he1b.get();
     he1b->heSym = he2;
 
-    if (existing_midpt == nullptr)
+    mid_vptr->halfEdge = he1;
+    he1b->vert->halfEdge = he1b.get();
+    he2b->vert->halfEdge = he2b.get();
+
+    if (existing_midpt == nullptr) // this midpoint already exists in the vertices list
     {
         vertices.push_back(std::move(mid_vptr));
     }
@@ -397,38 +407,70 @@ void Mesh::computeCentroid(Face &f)
     this->vertices.push_back(std::move(vptr)); // put the uPtr in the verts list
 }
 
-void Mesh::computeMidpoints(Mesh &mesh, std::unordered_map<Face*, Vertex*> &centroidMap)
+std::unordered_map<HalfEdge*, Vertex*> Mesh::computeMidpoints(Mesh &mesh, std::unordered_map<Face*, Vertex*> &centroidMap)
 {
-    std::unordered_map<HalfEdge*, int> uniqueEdgeMap; // Don't want to make a midpoint for the same edge twice
+    std::unordered_map<HalfEdge*, Vertex*> midpointMap; // Don't want to make a midpoint for the same edge twice
+    std::vector<Vertex*> new_vertices; // store the new vertices here so we can successfully split
+    std::vector<HalfEdge*> unique_edges; // store the unique full edges in this list
+
     // Iterate over the half edcurr_hePtrges to get vertex position info
     for (auto &he : mesh.halfEdges) {
-        auto search = uniqueEdgeMap.find(he.get());
-        if (search == uniqueEdgeMap.end()) // if this key does NOT exist, create the key, value pair
+        auto search = midpointMap.find(he.get());
+        if (search == midpointMap.end()) // if this key does NOT exist, create the key, value pair and compute the midpt
         {
-            uniqueEdgeMap[he.get()] = 0;
-            uniqueEdgeMap[he->heSym] = 0;
-
             HalfEdge *curr = he.get(); // make a raw pointer to the first halfEdge
+            uPtr<Vertex> mid_vptr = mkU<Vertex>(); // instantiate vert and make unique ptr to it
+            new_vertices.push_back(mid_vptr.get());
 
             if (curr->heSym->face) // if the symmetric pointer has a face
             {
-                glm::vec3 midPos = (curr->vert->pos + curr->heSym->vert->pos +
-                                    centroidMap.at(curr->face)->pos + centroidMap.at(curr->heSym->face)->pos)/4.f;
-//                uPtr<Vertex> vptr = mkU<Vertex>(midPos); // instantiate vert and make unique ptr to it
-                Vertex vptr = Vertex(midPos);
-                splitHE(curr, &vptr);
-//                this->vertices.push_back(std::move(vptr)); // put the uPtr in the verts list
+                mid_vptr->pos = (curr->vert->pos + curr->heSym->vert->pos +
+                             centroidMap.at(curr->face)->pos + centroidMap.at(curr->heSym->face)->pos)/4.f;
             }
             else
             {
-                glm::vec3 midPos = (curr->vert->pos + curr->heSym->vert->pos +
-                                    centroidMap.at(curr->face)->pos)/3.f;
-//                uPtr<Vertex> vptr = mkU<Vertex>(midPos); // instantiate vert and make unique ptr to it
-                Vertex vptr = Vertex(midPos);
-                splitHE(curr, &vptr);
-//                this->vertices.push_back(std::move(vptr)); // put the uPtr in the verts list
+                mid_vptr->pos = (curr->vert->pos + curr->heSym->vert->pos +
+                             centroidMap.at(curr->face)->pos)/3.f;
             }
+
+            mid_vptr->halfEdge = he.get(); // assign the halfedge member var to one of the original edges in which the midpt corresponds to
+            midpointMap[he.get()] = mid_vptr.get();
+            midpointMap[he->heSym] = mid_vptr.get();
+            unique_edges.push_back(he.get());
+
+            this->vertices.push_back(std::move(mid_vptr)); // put the uPtr in the verts list
         }
+    }
+
+    // Now split the edges based on these new midpoints for each of the UNIQUE EDGES (otherwise will split each edge twice)
+    for (auto &u_edge : unique_edges)
+    {
+        splitHE(u_edge, midpointMap.find(u_edge)->second);
+    }
+
+    return midpointMap;
+}
+
+void Mesh::smoothOGVerts(std::vector<Vertex*> &og_verts, std::unordered_map<Face*, Vertex*> &centroidMap)
+{
+    for (Vertex* v : og_verts)
+    {
+        float n = 0; // the number of adjacent midpts
+        glm::vec3 sum_midpts(0,0,0); // the sum of the adjacent midpoints
+        glm::vec3 sum_centroids(0,0,0); // the sum of the adjacent centroids
+
+        // get the adjacent vertices and centroids and add to their respective vec3
+        HalfEdge* curr = v->halfEdge;
+        do {
+            curr = curr->heNext;
+            sum_midpts += curr->vert->pos;
+            Vertex* centroid = centroidMap.find(curr->face)->second;
+            sum_centroids += centroid->pos;
+            curr = curr->heSym;
+            n++;
+        } while (curr != v->halfEdge);
+
+        v->pos = (n - 2.f) * v->pos / n + sum_midpts / (n * n) + sum_centroids / (n * n);
     }
 }
 
@@ -455,8 +497,15 @@ void Mesh::subdivide()
     }
 
     // Compute midpoints (edge vertices)
-    computeMidpoints(*this, centroidMap); // New midpoints are added to the vertices list
+    std::unordered_map<HalfEdge*, Vertex*> midpointMap = computeMidpoints(*this, centroidMap); // New midpoints are added to the vertices list
 
     // Smooth the original vertices
+    smoothOGVerts(og_verts, centroidMap);
+
+    // Quadrangulate the new vertices
+    for (auto &v : vertices)
+    {
+        std::cout << "Index, pos: {" << v->id << ", (" << v->pos.x << ", " << v->pos.y << ", " << v->pos.z << ")}" << std::endl;
+    }
 
 }

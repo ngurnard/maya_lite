@@ -30,8 +30,15 @@ What is the datatype for the QWidgetList??
 Answer (Oct 29, 00:49)
 https://doc.qt.io/qt-6/qspinbox.html
 
+Question 6:
+How do I use a unique pointer a a defualt parameter?
+Answer (Oct 30, 14:52)
+https://stackoverflow.com/questions/48527079/unique-pointer-as-default-parameter
 
-
+Question 7:
+How to pass optional arguments to a method in C++?
+Answer (Oct 29, 11:21)
+https://stackoverflow.com/questions/3784114/how-to-pass-optional-arguments-to-a-method-in-c
 
 
 ----------------------------------------------------------------------

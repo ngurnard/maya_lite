@@ -33,11 +33,12 @@ public:
 
     // attribute modification functions
 //    void splitHE(HalfEdge *he);
-    void splitHE(HalfEdge *he, Vertex* existing_midpt);
+    void splitHE(HalfEdge *he, Vertex* existing_midpt = nullptr);
     void triangulate(Face *f);
 
     // subdivision member functions
     void subdivide();
     void computeCentroid(Face &f);
-    void computeMidpoints(Mesh &mesh, std::unordered_map<Face*, Vertex*> &centroidMap);
+    std::unordered_map<HalfEdge*, Vertex*> computeMidpoints(Mesh &mesh, std::unordered_map<Face*, Vertex*> &centroidMap);
+    void smoothOGVerts(std::vector<Vertex*> &og_verts, std::unordered_map<Face*, Vertex*> &centroidMap);
 };
