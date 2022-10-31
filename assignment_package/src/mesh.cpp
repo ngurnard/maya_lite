@@ -507,7 +507,7 @@ void Mesh::quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap)
 
             // Create the loop
             // edge that is after curr
-            curr->heNext = he1b.get();
+            curr->heNext->heNext = he1b.get();
             curr->heNext->setFace(new_face.get());
             // edge that points to centroid
             he1b->heNext = he2b.get();
