@@ -558,14 +558,19 @@ void Mesh::quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap)
         } while (curr != start);
     }
 
+
     for (uPtr<Face> &f : new_faces) {
         HalfEdge* start = f->halfEdge;
         HalfEdge* curr = start;
         // Loop through the half edges
         do {
+            std::cout << "START -----------------------" << std::endl;
             std::cout << "curr->id : {" << curr->id << "}" << std::endl;
+            std::cout << "curr->vert : {" << curr->vert->id << "}" << std::endl;
+            std::cout << "curr->sym->vert : {" << curr->heSym->vert->id << "}" << std::endl;
             std::cout << "curr->heNext->vert : {" << curr->heNext->vert->id << "}" << std::endl;
             std::cout << "curr->heNext->heSym->vert : {" << curr->heNext->heSym->vert->id << "}" << std::endl;
+            std::cout << "END -----------------------" << std::endl;
             curr = curr->heNext;
         } while (curr != start);
     }
