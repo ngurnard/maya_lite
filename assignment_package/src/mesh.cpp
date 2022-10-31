@@ -476,26 +476,29 @@ void Mesh::smoothOGVerts(std::vector<Vertex*> &og_verts, std::unordered_map<Face
 
 void Mesh::quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap)
 {
+    std::vector<uPtr<Face>> new_faces; // new faces we makin
+
     for (auto &f : faces) // for all of the original faces, we will quadrangulate it
     {
-        std::cout << "Printing vertex ids " << f->halfEdge->vert->id << std::endl;
-
         // form 4 little loops by making hald edges around each loop
         // store a temp pointer to the next yellow half edge in the cycle before sealing off face ring
         // store last iterations half edge that goes to centroid to make sym pointers
         // handle the edge case for the last iteration setting up the half edge sym pointer
 
         int iter = 0;
-        HalfEdge* curr = f->halfEdge;
+        HalfEdge* start = f->halfEdge;
+        HalfEdge* curr = start;
         // Loop through the half edges
         do {
             std::cout << "Iteration : " << iter << std::endl;
+            std::cout << "face->HE, HE->vert : {" << f->halfEdge->id << ", " << f->halfEdge->vert->id << "}" << std::endl;
             // Instantiate the 2 new halfedges
             uPtr<HalfEdge> he1b = mkU<HalfEdge>(); // points to the centroid
             uPtr<HalfEdge> he2b = mkU<HalfEdge>(); // points to the midpoint that is behind the current HE
 
             // Instantiate a new face
             uPtr<Face> new_face = mkU<Face>();
+            new_face->color = genRandColor();
 
             // Create useful temp pointers
             HalfEdge* tempEdge = curr->heNext->heNext;
@@ -511,33 +514,41 @@ void Mesh::quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap)
             // edge that points to centroid
             he1b->heNext = he2b.get();
             he1b->setVertex(centroidMap.find(f.get())->second);
-            he2b->setFace(new_face.get());
+            he1b->setFace(new_face.get());
             // edge that points to midpt (the edge before curr)
             he2b->heNext = curr;
             he2b->setVertex(curr->heSym->vert);
             he2b->setFace(new_face.get());
 
             // set up the sym pointers
-            if (iter == 0){ // store he2b to match the sym later
+            if (iter == 0){ // store he2b to match the sym later (edge case in last iter)
                 temp_he2b = he2b.get();
             } else if (iter != 0){
                 he2b->heSym = temp_he1b;
+                temp_he1b->heSym = he2b.get();
+//                std::cout << "Checking syms: face->HE, HE->vert : {" << f->halfEdge->id << ", " << f->halfEdge->vert->id << "}" << std::endl;
             }
             if (tempEdge == f->halfEdge) { // edge case for the last iteration
                 he1b->heSym = temp_he2b;
+                temp_he2b->heSym = he1b.get();
             }
 
             // push the new half edges and face to the mesh component lists
-            faces.push_back(std::move(f));
+            new_faces.push_back(std::move(new_face));
             halfEdges.push_back(std::move(he1b));
             halfEdges.push_back(std::move(he2b));
 
             // Iterate curr and iter
             curr = tempEdge;
             iter++;
-        } while (curr != f->halfEdge);
-
+        } while (curr != start);
     }
+
+    // put all of the new faces within the mesh component list
+    for (uPtr<Face> &f : new_faces) {
+        faces.push_back(std::move(f));
+    }
+
 }
 
 void Mesh::subdivide()
