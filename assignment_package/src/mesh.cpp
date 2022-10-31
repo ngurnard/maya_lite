@@ -478,12 +478,20 @@ void Mesh::quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap)
 {
     std::vector<uPtr<Face>> new_faces; // new faces we makin
 
+    std::cout << "Before quadrangulating: {n_verts, n_faces, n_HEs}: {" <<
+                 vertices.size() << ", " << faces.size() << ", " << halfEdges.size() << "}" << std::endl;
+
     for (auto &f : faces) // for all of the original faces, we will quadrangulate it
     {
-        // form 4 little loops by making hald edges around each loop
+        if (f->id == 2)
+        {
+            break;
+        }
+        // form 4 little loops by making half edges around each loop
         // store a temp pointer to the next yellow half edge in the cycle before sealing off face ring
         // store last iterations half edge that goes to centroid to make sym pointers
         // handle the edge case for the last iteration setting up the half edge sym pointer
+        std::cout << "Face ID : " << f->id << "--------------------------------------------------" << std::endl;
 
         int iter = 0;
         HalfEdge* start = f->halfEdge;
@@ -492,10 +500,14 @@ void Mesh::quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap)
         // Loop through the half edges
         do {
             std::cout << "Iteration : " << iter << std::endl;
-            std::cout << "face->HE, HE->vert : {" << f->halfEdge->id << ", " << f->halfEdge->vert->id << "}" << std::endl;
+//            std::cout << "face->HE, HE->vert : {" << f->halfEdge->id << ", " << f->halfEdge->vert->id << "}" << std::endl;
+//            std::cout << "curr->heNext->vert : {" << curr->heNext->vert << "}" << std::endl;
+//            std::cout << "curr->heNext->heSym->vert : {" << curr->heNext->heSym->vert << "}" << std::endl;
+
             // Instantiate the 2 new halfedges
             uPtr<HalfEdge> he1b = mkU<HalfEdge>(); // points to the centroid
             uPtr<HalfEdge> he2b = mkU<HalfEdge>(); // points to the midpoint that is behind the current HE
+//            std::cout << "New HEs : " << he1b->id << ", " << he2b->id << std::endl;
 
             // Instantiate a new face
             uPtr<Face> new_face = mkU<Face>();
@@ -523,17 +535,17 @@ void Mesh::quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap)
             // set up the sym pointers
             if (iter == 0){ // store he2b to match the sym later (edge case in last iter)
                 temp_he2b = he2b.get();
-                std::cout << "Resetting temp he2b: " << temp_he2b << std::endl;
+//                std::cout << "Resetting temp he2b: " << temp_he2b << std::endl;
             } else if (iter != 0){
                 he2b->heSym = temp_he1b;
                 temp_he1b->heSym = he2b.get();
-                std::cout << "Checking temp he2b: " << temp_he2b << std::endl;
+//                std::cout << "Checking temp he2b: " << temp_he2b << std::endl;
             }
             if (tempEdge == f->halfEdge) { // edge case for the last iteration
-                std::cout << "Checking  if temp_he2b is null: " << temp_he2b << std::endl;
+//                std::cout << "Checking  if temp_he2b is null: " << temp_he2b << std::endl;
                 he1b->heSym = temp_he2b;
                 temp_he2b->heSym = he1b.get();
-            }
+            };
 
             // push the new half edges and face to the mesh component lists
             new_faces.push_back(std::move(new_face));
@@ -543,6 +555,18 @@ void Mesh::quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap)
             // Iterate curr and iter
             curr = tempEdge;
             iter++;
+        } while (curr != start);
+    }
+
+    for (uPtr<Face> &f : new_faces) {
+        HalfEdge* start = f->halfEdge;
+        HalfEdge* curr = start;
+        // Loop through the half edges
+        do {
+            std::cout << "curr->id : {" << curr->id << "}" << std::endl;
+            std::cout << "curr->heNext->vert : {" << curr->heNext->vert->id << "}" << std::endl;
+            std::cout << "curr->heNext->heSym->vert : {" << curr->heNext->heSym->vert->id << "}" << std::endl;
+            curr = curr->heNext;
         } while (curr != start);
     }
 
@@ -575,6 +599,13 @@ void Mesh::subdivide()
 
     // Smooth the original vertices
     smoothOGVerts(og_verts, centroidMap);
+
+//    for (auto &curr : halfEdges)
+//    {
+//        glm::vec3 temp1 = curr->vert->pos - (curr->heSym->vert->pos);
+//        glm::vec3 temp2 =  curr->heNext->vert->pos - curr->heNext->heSym->vert->pos;
+//    }
+
 
     // Quadrangulate the new vertices
     quadrangulate(centroidMap);
