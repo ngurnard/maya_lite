@@ -5,6 +5,7 @@
 # include <face.h>
 # include <vertex.h>
 # include <halfedge.h>
+# include <unordered_map>
 
 class Mesh : public Drawable {
 private:

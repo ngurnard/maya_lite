@@ -245,14 +245,14 @@
    <widget class="QPushButton" name="loadObjButton">
     <property name="geometry">
      <rect>
-      <x>1120</x>
-      <y>590</y>
-      <width>201</width>
-      <height>30</height>
+      <x>1200</x>
+      <y>560</y>
+      <width>121</width>
+      <height>61</height>
      </rect>
     </property>
     <property name="text">
-     <string>Choose .obj file</string>
+     <string>Load Mesh (.obj)</string>
     </property>
    </widget>
    <widget class="QWidget" name="layoutWidget">
@@ -357,6 +357,19 @@
      <string>Subdivide</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="loadJSONButton">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>560</y>
+      <width>161</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Load Skeleton (.JSON)</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -364,7 +377,7 @@
      <x>0</x>
      <y>0</y>
      <width>1329</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

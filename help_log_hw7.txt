@@ -1,0 +1,22 @@
+----------------------------------------------------------------------
+QUESTION AND ANSWERS ONLINE
+----------------------------------------------------------------------
+Question 1:
+What is the quaternion convection in glm? w,x,y,z? x,y,z,w? 
+Answer (Nov 1, 14:16)
+https://stackoverflow.com/questions/48348509/glmquat-why-the-order-of-x-y-z-w-components-are-mixed
+
+Question 2:
+GLM documentation is bad. Is there something better?
+Answer (Nov 1, 15:36)
+http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/
+
+Question 3:
+Is there any tutorials online on how I can read in the JSON file?
+Answer (Nov 1, 15:41)
+https://www.weiy.city/2020/08/how-to-write-and-read-json-file-by-qt/
+https://thecodeprogram.com/how-to-use-json-data-with-qt-c--
+
+----------------------------------------------------------------------
+COLLABORATORS
+----------------------------------------------------------------------
