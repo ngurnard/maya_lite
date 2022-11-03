@@ -7,6 +7,9 @@
 #include <QFileDialog> // for the file selection button
 #include <QMessageBox>
 #include <QListWidgetItem>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 MyGL::MyGL(QWidget *parent)
     : OpenGLContext(parent),
@@ -14,13 +17,14 @@ MyGL::MyGL(QWidget *parent)
       m_progLambert(this), m_progFlat(this),
       m_glCamera(),
       m_mesh(this), // initialize the mesh
-      mp_selected_vertex(nullptr), // member pointer to the selected vertex
-      mp_selected_face(nullptr), // member pointer to the selected face
-      mp_selected_halfEdge(nullptr), // member pointer to the selected half-edge
+      mp_selected_vertex(nullptr), // member pointer to the selected face
+      mp_selected_face(nullptr), // member pointer to the selected half-edge
       // Mouse click events
+      mp_selected_halfEdge(nullptr),
       m_vertDisplay(this),
       m_faceDisplay(this),
-      m_heDisplay(this)
+      m_heDisplay(this),
+      m_wireframe(this)
 {
     setFocusPolicy(Qt::StrongFocus);
 }
@@ -59,6 +63,7 @@ void MyGL::initializeGL()
     //Create the instances of Cylinder and Sphere.
 //    m_geomSquare.create();
     m_mesh.create();
+//    m_wireframe.create();
 
     // Create and set up the diffuse shader
     m_progLambert.create(":/glsl/lambert.vert.glsl", ":/glsl/lambert.frag.glsl");
@@ -101,12 +106,13 @@ void MyGL::paintGL()
     //Note that we have to transpose the model matrix before passing it to the shader
     //This is because OpenGL expects column-major matrices, but you've
     //implemented row-major matrices.
-//    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(-2,0,0)) * glm::rotate(glm::mat4(), 0.25f * 3.14159f, glm::vec3(0,1,0));
+    //glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(-2,0,0)) * glm::rotate(glm::mat4(), 0.25f * 3.14159f, glm::vec3(0,1,0));
     glm::mat4 model = glm::mat4(1.0f); // identity matrix
     //Send the geometry's transformation matrix to the shader
     m_progLambert.setModelMatrix(model);
+    m_progFlat.setModelMatrix(model);
     //Draw the example sphere using our lambert shader
-//    m_progLambert.draw(m_geomSquare);
+    //m_progLambert.draw(m_geomSquare);
     m_progLambert.draw(m_mesh);
 
     // Draw the vertices, faces, and halfedges selected
@@ -124,13 +130,19 @@ void MyGL::paintGL()
         m_progFlat.draw(m_heDisplay);
     }
 
+    // draw the skeleton
+    if (m_skeleton_root != NULL)
+    {
+        traverseSkeleton(this->m_skeleton_root, (this->m_skeleton_root->getOverallTransformation()));
+    }
+
     glEnable(GL_DEPTH_TEST);
 
     //Now do the same to render the cylinder
     //We've rotated it -45 degrees on the Z axis, then translated it to the point <2,2,0>
-//    model = glm::translate(glm::mat4(1.0f), glm::vec3(2,2,0)) * glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(0,0,1));
-//    m_progLambert.setModelMatrix(model);
-//    m_progLambert.draw(m_geomSquare);
+    //model = glm::translate(glm::mat4(1.0f), glm::vec3(2,2,0)) * glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(0,0,1));
+    //m_progLambert.setModelMatrix(model);
+    //m_progLambert.draw(m_geomSquare);
 }
 
 
@@ -219,14 +231,13 @@ void MyGL::slot_loadObj()
                 "../", // Default file to open
                 "OBJ Files (*.obj)" // filter for obj files
                 );
-    QMessageBox::information(this, tr("Selected File Name"), filename);
+    // QMessageBox::information(this, tr("Selected File Name"), filename);
 
     // convert the QString to a const char*
     std::string str = filename.toStdString();
     const char* my_str = str.c_str();
     std::cout << my_str << std::endl;
 
-//    m_mesh = Mesh(this);
     this->m_mesh.load_obj(my_str); // this creates the mesh
     this->m_mesh.destroy();
     this->m_mesh.create();
@@ -235,6 +246,81 @@ void MyGL::slot_loadObj()
     emit MyGL::sig_sendMesh(&m_mesh);
 
     this->update(); // Calls paintGL, among other things (taken from above in keyPressEvent)
+}
+
+uPtr<Joint> MyGL::parseJson(QJsonObject &obj)
+{
+    uPtr<Joint> joint = mkU<Joint>(obj["name"].toString());
+    QJsonArray position = obj["pos"].toArray();
+    joint->pos = glm::vec3(position[0].toDouble(), position[1].toDouble(), position[2].toDouble());
+    QJsonArray rotation = obj["rot"].toArray();
+    float angle = rotation[0].toDouble();
+    glm::vec3 axis = glm::normalize(glm::vec3(rotation[1].toDouble(), rotation[2].toDouble(), rotation[3].toDouble()));
+    joint->rot = glm::angleAxis(angle, axis);
+
+    // Need to set the joint attibutes to be drawn correctly
+    joint->setGeom(&m_wireframe); // make sure the geometry of the joint is set
+    joint->geom->setJoint(joint.get()); // set the joint for the geomtry
+    joint->geom->create(); // create the geometry so it can be drawn
+
+    QJsonArray children = obj["children"].toArray(); // the children in the json are a list of child objects
+    for (auto child : children){
+        QJsonObject childObj = child.toObject(); // make the child into an object
+        uPtr<Joint> childPtr = parseJson(childObj); // recurviely get its children
+        childPtr->parent = joint.get(); // set the parent for each child node
+        joint->addChild(childPtr);
+    }
+    return joint;
+}
+
+void MyGL::slot_loadJson()
+{
+    const QString filename = QFileDialog::getOpenFileName(
+                this,
+                tr("Open JSON File"), // title of the file dialog (basically the window that pops up)
+                "../", // Default file to open
+                "JSON Files (*.json)" // filter for obj files
+                );
+    // QMessageBox::information(this, tr("Selected File Name"), filename);
+
+    QFile input_file(filename); // input file object
+
+    // Make sure the file is read correctly, else throw error
+    if (!input_file.exists())
+    {
+        std::cout << "JSON file read incorrectly in Skeleton::load_json" << std::endl;
+        throw "JSON file read incorrectly";
+    }
+
+    // It is recommend to take a look at the documentation for the QJsonDocument, QJsonObject, and QJsonArray classes.
+    // I followed this video to parse JSON files:
+    // https://www.youtube.com/watch?v=QNfdZY91t68&ab_channel=HuiYuan
+    if (input_file.open(QIODevice::ReadOnly | QIODevice::Text)) { // open as read only and as text
+        QString file_data = input_file.readAll(); // read the whole file into a QString
+        input_file.close(); // no longer need the file to be open
+        QJsonDocument document = QJsonDocument::fromJson(file_data.toUtf8()); // make a json document
+        QJsonObject object = document.object(); // make the document into an object
+
+        QJsonObject root = object["root"].toObject(); // turn the first key "root" into an object so we can iterate through it
+
+        // Make a recursive function in order to get all of the children correctly
+        m_skeleton_root = parseJson(root);
+    }
+
+    emit sig_sendSkeletonRoot(m_skeleton_root.get());
+    update(); // calls paintGL
+}
+
+void MyGL::traverseSkeleton(uPtr<Joint> &j, glm::mat4 T){
+    T = j->getOverallTransformation();
+
+    for (auto& child : j->children){
+        traverseSkeleton(child, T);
+    }
+    if (j->geom){
+        m_progFlat.setModelMatrix(T);
+        m_progFlat.draw(*(j->geom));
+    }
 }
 
 void MyGL::slot_selectVertex(QListWidgetItem *i)
@@ -393,10 +479,20 @@ void MyGL::slot_modFaceBlue(double bb)
 
 void MyGL::slot_subdivide()
 {
-    std::cout << "subdividing..." << std::endl;
     m_mesh.subdivide();
     emit sig_sendMesh(&m_mesh);
     this->m_mesh.destroy();
     this->m_mesh.create();
     this->update();
 }
+
+void MyGL::slot_skinning()
+{
+    std::cout << "skinning..." << std::endl;
+    if (this->m_skeleton_root != NULL) // the the json is loaded in
+    {
+
+    }
+
+}
+

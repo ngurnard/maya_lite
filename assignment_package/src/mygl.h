@@ -14,6 +14,8 @@
 #include "vertex_display.h"
 #include "face_display.h"
 #include "halfedge_display.h"
+#include "joint.h"
+#include "joint_wireframe.h"
 
 
 class MyGL
@@ -35,6 +37,10 @@ private:
     Vertex *mp_selected_vertex; // member pointer to the selected vertex
     Face *mp_selected_face; // member pointer to the selected face
     HalfEdge *mp_selected_halfEdge; // member pointer to the selected half-edge
+
+    uPtr<Joint> m_skeleton_root; // the root of the skeleton
+    JointWireframe m_wireframe; // what the joints should display like
+
 public:
     explicit MyGL(QWidget *parent = nullptr);
     ~MyGL();
@@ -52,15 +58,23 @@ public:
     FaceDisplay m_faceDisplay;
     HalfEdgeDisplay m_heDisplay;
 
+    // need to load in the json to be drawn
+    uPtr<Joint> parseJson(QJsonObject &obj);
+
+    // Traverse the skeleton to be able to draw it
+    void traverseSkeleton(uPtr<Joint> &j, glm::mat4 T);
+
 protected:
     void keyPressEvent(QKeyEvent *e);
 
 signals:
     void sig_sendMesh(Mesh*);
+    void sig_sendSkeletonRoot(QTreeWidgetItem*);
     void sig_setFocus();
 
 public slots:
     void slot_loadObj(); // call the load obj function to set the mesh in mygl
+    void slot_loadJson(); // call the load json file to set up the skeleton
     // Mouse click event slots
     void slot_selectVertex(QListWidgetItem*);
     void slot_selectFace(QListWidgetItem*);
@@ -76,6 +90,7 @@ public slots:
     void slot_modFaceBlue(double zz);
 
     void slot_subdivide(); // subdivision slot
+    void slot_skinning(); // skinning button
 };
 
 

@@ -16,7 +16,24 @@ Is there any tutorials online on how I can read in the JSON file?
 Answer (Nov 1, 15:41)
 https://www.weiy.city/2020/08/how-to-write-and-read-json-file-by-qt/
 https://thecodeprogram.com/how-to-use-json-data-with-qt-c--
+https://www.youtube.com/watch?v=QNfdZY91t68&ab_channel=HuiYuan
+I used the 3rd one the most
+
+Question 4:
+Why can't I rotate my vector to draw the spheres?
+Answer (Nov 3, 12:30)
+You have to rotate a matrix
+https://stackoverflow.com/questions/20923232/how-to-rotate-a-vector-by-a-given-direction
+
+Question 5:
+Why am i getting am unknown type even when including?????
+Answer (Nov 3, 13:18)
+https://stackoverflow.com/questions/18903300/c-unknown-type-name-my-structure
 
 ----------------------------------------------------------------------
 COLLABORATORS
 ----------------------------------------------------------------------
+Evan Grant discussed with me how I should get the tree widget items to show up
+on the tree widget. I was forgetting to set text. Him and Ankit Billa also
+informed me that loading in a JSON should be a recursive process, so I had 
+to study up how to do recursion because that is new for me.

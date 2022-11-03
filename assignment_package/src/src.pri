@@ -7,6 +7,7 @@ SOURCES += \
     $$PWD/halfedge.cpp \
     $$PWD/halfedge_display.cpp \
     $$PWD/joint.cpp \
+    $$PWD/joint_wireframe.cpp \
     $$PWD/main.cpp \
     $$PWD/mainwindow.cpp \
     $$PWD/mesh.cpp \
@@ -28,6 +29,7 @@ HEADERS += \
     $$PWD/halfedge.h \
     $$PWD/halfedge_display.h \
     $$PWD/joint.h \
+    $$PWD/joint_wireframe.h \
     $$PWD/la.h \
     $$PWD/mainwindow.h \
     $$PWD/mesh.h \

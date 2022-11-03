@@ -61,7 +61,7 @@ void Mesh::load_obj(const char* file_name)
     // Make sure the file is read correctly, else throw error
     if (!input_file.is_open())
     {
-        std::cout << "OBJ file read incorrectly in loadobj.h" << std::endl;
+        std::cout << "OBJ file read incorrectly in Mesh::load_obj" << std::endl;
         throw "OBJ file read incorrectly";
     }
 
@@ -299,7 +299,7 @@ void Mesh::splitHE(HalfEdge *he1, Vertex* existing_midpt)
     Vertex* vert2 = he2->vert;
 
     // Instantiate the new midpoint vertex
-    uPtr<Vertex> mid_vptr = mkU<Vertex>((vert2->pos + vert1->pos)/2.f);; // instantiate vert and make unique ptr to it
+    uPtr<Vertex> mid_vptr = mkU<Vertex>((vert2->pos + vert1->pos)/2.f); // instantiate vert and make unique ptr to it
 
     // Instantiate the 2 new halfedges as a result of the split
     uPtr<HalfEdge> he1b = mkU<HalfEdge>(); // instatiate HalfEdge object

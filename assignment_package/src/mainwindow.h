@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QListWidgetItem>
+#include <QTreeWidgetItem>
 #include "mesh.h"
 
 
@@ -25,6 +26,7 @@ private slots:
     void on_actionCamera_Controls_triggered();
 
     void slot_addToListWidget(Mesh*);
+    void slot_addRoottoTreeWidget(QTreeWidgetItem*);
 
     void slot_setFocus();
 

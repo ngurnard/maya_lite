@@ -1,5 +1,4 @@
 # pragma once
-#include "loadobj.h"
 # include <drawable.h>
 # include <smartpointerhelp.h>
 # include <face.h>
@@ -17,7 +16,6 @@ private:
 public:
 
     // Constructors/Destructors
-//    Mesh(OpenGLContext*); // default constructor
     Mesh(OpenGLContext* context); // default constructor
 
     // Need to invoke the loading on an obj
@@ -33,7 +31,6 @@ public:
     friend class MainWindow; // for displaying stuff in the vertex lists
 
     // attribute modification functions
-//    void splitHE(HalfEdge *he);
     void splitHE(HalfEdge *he, Vertex* existing_midpt = nullptr);
     void triangulate(Face *f);
 

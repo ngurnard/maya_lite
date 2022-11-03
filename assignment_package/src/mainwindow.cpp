@@ -12,9 +12,15 @@ MainWindow::MainWindow(QWidget *parent) :
     // Connect the gui to update the focus such that you dont have to click mygl in order to see updates
     connect(ui->mygl, SIGNAL(sig_setFocus()), this, SLOT(slot_setFocus()));
 
+    // Connect MyGL's signal that contains the root of the skeleton that adds the root node to the tree widget
+    connect(ui->mygl, SIGNAL(sig_sendSkeletonRoot(QTreeWidgetItem*)), this, SLOT(slot_addRoottoTreeWidget(QTreeWidgetItem*)));
+
     // Connect the obj button to import a .obj file
     // (sender, signal, receiver, slot)
     connect(ui->loadObjButton, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_loadObj()));
+
+    // Connect the json button to import a .json file
+    connect(ui->loadJSONButton, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_loadJson()));
 
     // Connect to the gui the functiuons for selecing faces, verts, and halfEdges
     connect(ui->vertsListWidget, SIGNAL(itemClicked(QListWidgetItem*)), ui->mygl, SLOT(slot_selectVertex(QListWidgetItem*)));
@@ -40,6 +46,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Connect the gui subdivide button to the subdivide slot
     connect(ui->subdivide, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_subdivide()));
+
+    // Connect the gui skinning button the the skinning slot
+    connect(ui->skinningButton, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_skinning()));
 }
 
 MainWindow::~MainWindow()
@@ -78,6 +87,11 @@ void MainWindow::slot_addToListWidget(Mesh *m) {
         ui->halfEdgesListWidget->addItem(he.get());
     }
 
+}
+
+void MainWindow::slot_addRoottoTreeWidget(QTreeWidgetItem* i)
+{
+    ui->jointTree->addTopLevelItem(i);
 }
 
 void MainWindow::slot_setFocus()
