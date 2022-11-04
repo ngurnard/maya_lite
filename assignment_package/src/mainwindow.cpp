@@ -44,6 +44,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->faceRedSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modFaceRed(double)));
     connect(ui->faceGreenSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modFaceGreen(double)));
     connect(ui->faceBlueSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modFaceBlue(double)));
+    connect(ui->jointPosXSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modJointPosX(double)));
+    connect(ui->jointPosYSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modJointPosY(double)));
+    connect(ui->jointPosZSpinBox, SIGNAL(valueChanged(double)), ui->mygl, SLOT(slot_modJointPosZ(double)));
+    connect(ui->jointRotXpos, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_modJointRotXPos()));
+    connect(ui->jointRotYpos, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_modJointRotYPos()));
+    connect(ui->jointRotZpos, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_modJointRotZPos()));
+    connect(ui->jointRotXneg, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_modJointRotXNeg()));
+    connect(ui->jointRotYneg, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_modJointRotYNeg()));
+    connect(ui->jointRotZneg, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_modJointRotZNeg()));
 
     // Connect the gui subdivide button to the subdivide slot
     connect(ui->subdivide, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_subdivide()));

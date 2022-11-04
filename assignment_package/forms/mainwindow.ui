@@ -535,7 +535,7 @@
      <string>Joint Rotation</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="jointPosXrot">
+   <widget class="QPushButton" name="jointRotXpos">
     <property name="geometry">
      <rect>
       <x>1210</x>
@@ -548,7 +548,7 @@
      <string>+</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="jointNegXrot">
+   <widget class="QPushButton" name="jointRotXneg">
     <property name="geometry">
      <rect>
       <x>1180</x>
@@ -609,7 +609,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QPushButton" name="jointNegYrot">
+   <widget class="QPushButton" name="jointRotYneg">
     <property name="geometry">
      <rect>
       <x>1250</x>
@@ -622,7 +622,7 @@
      <string>-</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="jointNegZrot">
+   <widget class="QPushButton" name="jointRotZneg">
     <property name="geometry">
      <rect>
       <x>1330</x>
@@ -635,7 +635,7 @@
      <string>-</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="jointPosYrot">
+   <widget class="QPushButton" name="jointRotYpos">
     <property name="geometry">
      <rect>
       <x>1280</x>
@@ -648,7 +648,7 @@
      <string>+</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="jointPosZrot">
+   <widget class="QPushButton" name="jointRotZpos">
     <property name="geometry">
      <rect>
       <x>1360</x>

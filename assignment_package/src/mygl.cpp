@@ -474,6 +474,104 @@ void MyGL::slot_modVertPosZ(double zz)
     emit sig_setFocus();
 }
 
+void MyGL::slot_modJointPosX(double xx)
+{
+    if (mp_selected_joint != nullptr)
+    {
+        this->mp_selected_joint->pos.x = xx;
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_modJointPosY(double yy)
+{
+    if (mp_selected_joint != nullptr)
+    {
+        this->mp_selected_joint->pos.y = yy;
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_modJointPosZ(double zz)
+{
+    if (mp_selected_joint != nullptr)
+    {
+        this->mp_selected_joint->pos.z = zz;
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_modJointRotXPos()
+{
+    if (mp_selected_joint != nullptr)
+    {
+        this->mp_selected_joint->rot *= glm::angleAxis(glm::radians(5.f), glm::vec3(1, 0, 0));
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_modJointRotYPos()
+{
+    if (mp_selected_joint != nullptr)
+    {
+        this->mp_selected_joint->rot *= glm::angleAxis(glm::radians(5.f), glm::vec3(0, 1, 0));
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_modJointRotZPos()
+{
+    if (mp_selected_joint != nullptr)
+    {
+        this->mp_selected_joint->rot *= glm::angleAxis(glm::radians(5.f), glm::vec3(0, 0, 1));
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_modJointRotXNeg()
+{
+    if (mp_selected_joint != nullptr)
+    {
+        this->mp_selected_joint->rot *= glm::angleAxis(glm::radians(-5.f), glm::vec3(1, 0, 0));
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_modJointRotYNeg()
+{
+    if (mp_selected_joint != nullptr)
+    {
+        this->mp_selected_joint->rot *= glm::angleAxis(glm::radians(-5.f), glm::vec3(0, 1, 0));
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_modJointRotZNeg()
+{
+    if (mp_selected_joint != nullptr)
+    {
+        this->mp_selected_joint->rot *= glm::angleAxis(glm::radians(-5.f), glm::vec3(0, 0, 1));
+        this->update();
+    }
+
+    emit sig_setFocus();
+}
 void MyGL::slot_modFaceRed(double rr)
 {
     if (this->mp_selected_face != nullptr)

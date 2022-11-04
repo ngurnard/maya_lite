@@ -90,6 +90,15 @@ public slots:
     void slot_modFaceRed(double xx); // to change the colors with the spin boxes
     void slot_modFaceGreen(double yy);
     void slot_modFaceBlue(double zz);
+    void slot_modJointPosX(double xx); // to change the joint positions with the spin boxes
+    void slot_modJointPosY(double yy);
+    void slot_modJointPosZ(double zz);
+    void slot_modJointRotXPos(); // to change the joint Rotations with the push buttons
+    void slot_modJointRotYPos();
+    void slot_modJointRotZPos();
+    void slot_modJointRotXNeg(); // to change the joint Rotations with the push buttons
+    void slot_modJointRotYNeg();
+    void slot_modJointRotZNeg();
 
     void slot_subdivide(); // subdivision slot
     void slot_skinning(); // skinning button
