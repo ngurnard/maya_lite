@@ -647,7 +647,6 @@ void MyGL::slot_skinning()
     m_mesh.bound_to_skeleton = false; // in case we want to reskin
     if (this->m_skeleton_root != NULL) // the the json is loaded in
     {
-        std::cout << "skinning..." << std::endl;
         m_mesh.bindToSkeleton(this->m_skeleton_root.get());
         m_progSkeleton.setBindMats(m_mesh.skeletonBindMats); // ONLY SET THE BIND MATRICES ONCE
         this->m_mesh.destroy();

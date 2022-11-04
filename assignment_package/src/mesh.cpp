@@ -246,9 +246,7 @@ void Mesh::create()
                 if (this->bound_to_skeleton)
                 {
                     weights.push_back(glm::vec2(curr->vert->joint_influence[0].first, curr->vert->joint_influence[1].first));
-//                    std::cout << curr->vert->joint_influence[0].first << ", " << curr->vert->joint_influence[1].first <<  std::endl;
                     jointIDs.push_back(glm::ivec2(curr->vert->joint_influence[0].second, curr->vert->joint_influence[1].second));
-//                    std::cout << curr->vert->joint_influence[0].second << ", " << curr->vert->joint_influence[1].second <<  std::endl;
                 }
 
                 // Update the current half edge to the next half edge
@@ -629,8 +627,6 @@ void Mesh::bindToSkeleton(Joint *root) // skinning function
 
     // variables to repopulate as we iterate
     float distance;
-    // std::map<float, Joint*> distance_joint_map; // map automatically sorts by keys!
-    //std::map<Vertex*, std::map<Joint*, float>> distance_joint_map;
 
     for (auto &v : this->vertices)
     {
@@ -640,12 +636,10 @@ void Mesh::bindToSkeleton(Joint *root) // skinning function
         float dist2 = std::numeric_limits<float>::max();;
 
         glm::vec4 vert_pos = glm::vec4(v->pos, 1);
-//        std::cout << "VERTS POS: {" << vert_pos.x << ", " << vert_pos.y << ", " << vert_pos.z << "}";
         // Get the closest joints to this vertex
         for (auto &joint : skeletonJoints)
         {
             glm::vec4 joint_pos = joint->getOverallTransformation() * glm::vec4(0, 0, 0, 1);
-//            std::cout << " JOINT POS: {" << joint_pos.x << ", " << joint_pos.y << ", " << joint_pos.z << "}" << std::endl;
             distance = glm::length(joint_pos - vert_pos); // length takes the norm
 
             // if the distance is smaller, update the distances and joints
@@ -667,8 +661,6 @@ void Mesh::bindToSkeleton(Joint *root) // skinning function
         dist2 = 1 - (dist2) / (dist1 + dist2); // normalize
         v->joint_influence.push_back(std::make_pair(dist1, closest)); // populate the joint influencers
         v->joint_influence.push_back(std::make_pair(dist2, second_closest)); // populate the joint influencers
-//        std::cout << closest << ", " << second_closest << std::endl;
-//        std::cout << dist1 << ", " << dist2 << std::endl;
     }
 
     this->bound_to_skeleton = true; // set the binding to true for the create function
@@ -692,7 +684,6 @@ void Mesh::updateOverallTransforms()
 {
     for (auto &joint : skeletonJoints)
     {
-//        joint->getOverallTransformation();
         skeletonOverallTransforms.push_back(joint->getOverallTransformation()); // store the overall transofrms for the skinning VBO later
     }
 }
