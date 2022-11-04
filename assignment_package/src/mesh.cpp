@@ -597,3 +597,55 @@ void Mesh::subdivide()
     }
 
 }
+
+void Mesh::bindToSkeleton(Joint *root) // skinning function
+{
+    if (this->vertices.empty())
+    {
+        std::cout << "need to also load in a mesh (.obj)..." << std::endl;
+    }
+    getSkeletonJoints(root); // populates the skeleton joints
+
+    // variables to repopulate as we iterate
+    float distance;
+    std::map<float, Joint*> distance_joint_map; // map automatically sorts by keys!
+
+
+    for (auto &v : this->vertices)
+    {
+        glm::vec4 vert_pos = glm::vec4(v->pos, 1);
+        // Get the closest joints to this vertex
+        for (auto &joint : skeletonJoints)
+        {
+            glm::vec4 joint_pos = joint->getOverallTransformation() * glm::vec4(0, 0, 0, 1);
+            distance = glm::length(joint_pos - vert_pos); // length takes the norm
+            std::pair<float, Joint*> pair = std::make_pair(distance, joint);
+            distance_joint_map.insert(pair); // automatically sorted in map! by keys
+        }
+
+        int iter = 0;
+        for (auto &pair : distance_joint_map)
+        {
+            if (iter == 2) // only want the first 2 closest joints
+            {
+                break;
+            }
+            v->joint_influence.push_back(pair);
+            iter++;
+        }
+
+    }
+}
+
+void Mesh::getSkeletonJoints(Joint *jj)
+{
+
+    // Set the bind matrix
+    jj->bindMat = glm::inverse(jj->getOverallTransformation()); // the overall transform at the time of the skinning
+
+    skeletonJoints.push_back(jj); // put in the joints list for finding nearest neighbors
+
+    for (auto& child : jj->children){
+        getSkeletonJoints(child.get());
+    }
+}

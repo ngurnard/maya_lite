@@ -625,11 +625,14 @@ void MyGL::slot_subdivide()
 
 void MyGL::slot_skinning()
 {
-    std::cout << "skinning..." << std::endl;
     if (this->m_skeleton_root != NULL) // the the json is loaded in
     {
-
+        std::cout << "skinning..." << std::endl;
+        m_mesh.bindToSkeleton(this->m_skeleton_root.get());
+//        emit sig_sendMesh(&m_mesh);
+        this->m_mesh.destroy();
+        this->m_mesh.create();
+        this->update();
     }
-
 }
 

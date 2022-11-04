@@ -12,6 +12,7 @@ private:
     std::vector<uPtr<Face>> faces; // stores the faces
     std::vector<uPtr<Vertex>> vertices; // stores the vertices
     std::vector<uPtr<HalfEdge>> halfEdges; // stores the halfedges
+    std::vector<Joint*> skeletonJoints; // skeleton joints are obtained with helper function getSkeletonJoints
 
 public:
 
@@ -40,4 +41,6 @@ public:
     std::unordered_map<HalfEdge*, Vertex*> computeMidpoints(Mesh &mesh, std::unordered_map<Face*, Vertex*> &centroidMap);
     void smoothOGVerts(std::vector<Vertex*> &og_verts, std::unordered_map<Face*, Vertex*> &centroidMap);
     void quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap);
+    void bindToSkeleton(Joint *root);
+    void getSkeletonJoints(Joint *root);
 };

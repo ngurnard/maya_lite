@@ -30,6 +30,17 @@ Why am i getting am unknown type even when including?????
 Answer (Nov 3, 13:18)
 https://stackoverflow.com/questions/18903300/c-unknown-type-name-my-structure
 
+Question 6:
+How do I sort a pair?
+Answer (Nov 4, 2:12)
+https://www.geeksforgeeks.org/sort-vector-of-pairs-in-ascending-order-in-c/
+I also found out that map sorts by keys!!
+
+Question 7
+How do I get the pair out of a map as a pair?
+Answer (Nov 4 2:42)
+https://stackoverflow.com/questions/33206767/how-to-get-the-pointer-to-a-pair-in-stdmap
+
 ----------------------------------------------------------------------
 COLLABORATORS
 ----------------------------------------------------------------------

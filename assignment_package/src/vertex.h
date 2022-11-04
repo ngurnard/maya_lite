@@ -17,7 +17,7 @@ private:
     // Add member variables to your vertex class that store which joints influence its transformation
     // and by how much they influence it. We only require that you allow each vertex to be influenced
     // by two joints, but you may support more influences if you like.
-    std::vector<std::pair<Joint*, float>> joint_influence; // what do I do with this for now? glm::length
+    std::vector<std::pair<float, Joint*>> joint_influence; // what do I do with this for now? glm::length
 
 public:
 
