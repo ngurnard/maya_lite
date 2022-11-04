@@ -37,6 +37,7 @@ private:
     Vertex *mp_selected_vertex; // member pointer to the selected vertex
     Face *mp_selected_face; // member pointer to the selected face
     HalfEdge *mp_selected_halfEdge; // member pointer to the selected half-edge
+    Joint *mp_selected_joint;
 
     uPtr<Joint> m_skeleton_root; // the root of the skeleton
     JointWireframe m_wireframe; // what the joints should display like
@@ -79,6 +80,7 @@ public slots:
     void slot_selectVertex(QListWidgetItem*);
     void slot_selectFace(QListWidgetItem*);
     void slot_selectHE(QListWidgetItem*); // selecting a half edge in the gui
+    void slot_selectJoint(QTreeWidgetItem *i);
     // Slots for attribute modification
     void slot_splitHE();
     void slot_triangulate();

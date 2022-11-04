@@ -25,7 +25,12 @@ void JointWireframe::create()
     {
         glm::mat4 rotMat = glm::rotate(glm::mat4(1.f), i * deg, glm::vec3(1, 0, 0)); // rotate around x axis
         position.push_back(rotMat * offset); // draw this offset position in terms of the world space
-        color.push_back(glm::vec4(1, 0, 0, 1)); // red for x
+        if (highlighted == false)
+        {
+            color.push_back(glm::vec4(1, 0, 0, 1)); // red for x
+        } else {
+            color.push_back(glm::vec4(1, 1, 1, 1)); // white for weeeeeeeeeeeeeeee
+        }
     }
     for (int i = 0; i < int(position.size()); i++)
     {
@@ -47,7 +52,12 @@ void JointWireframe::create()
     {
         glm::mat4 rotMat = glm::rotate(glm::mat4(1.f), i * deg, glm::vec3(0, 1, 0)); // rotate around y axis
         position.push_back(rotMat * offset); // draw this offset position in terms of the world space
-        color.push_back(glm::vec4(0, 1, 0, 1)); // green for y
+        if (highlighted == false)
+        {
+            color.push_back(glm::vec4(0, 1, 0, 1)); // green for y
+        } else {
+            color.push_back(glm::vec4(1, 1, 1, 1)); // white for weeeeeeeeeeeeeeee
+        }
     }
 
     for (int i = 0; i < int(position.size()); i++)
@@ -69,7 +79,12 @@ void JointWireframe::create()
     {
         glm::mat4 rotMat = glm::rotate(glm::mat4(1.f), i * deg, glm::vec3(0, 0, 1)); // rotate around z axis
         position.push_back(rotMat * offset); // draw this offset position in terms of the world space
-        color.push_back(glm::vec4(0, 0, 1, 1)); // blue for z
+        if (highlighted == false)
+        {
+            color.push_back(glm::vec4(0, 0, 1, 1)); // blue for z
+        } else {
+            color.push_back(glm::vec4(1, 1, 1, 1)); // white for weeeeeeeeeeeeeeee
+        }
     }
 
     for (int i = 0; i < int(position.size()); i++)

@@ -23,4 +23,6 @@ public:
     GLenum drawMode() override;
 
     void setJoint(Joint *joint);
+
+    bool highlighted = false; // is the joint selected
 };

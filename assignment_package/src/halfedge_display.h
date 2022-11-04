@@ -19,4 +19,6 @@ public:
     void updateHalfEdge(HalfEdge*);
 
     GLenum drawMode() override;
+
+    std::vector<glm::vec4> position; // the position to be displayed for this HalfEdge or bone
 };

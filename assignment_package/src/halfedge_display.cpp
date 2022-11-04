@@ -5,12 +5,15 @@ HalfEdgeDisplay::HalfEdgeDisplay(OpenGLContext *context) : Drawable(context), he
 void HalfEdgeDisplay::create()
 {
     std::vector<glm::vec4> color; // the color to be displayed for this HalfEdge
-    std::vector<glm::vec4> position; // the color to be displayed for this HalfEdge
+//    std::vector<glm::vec4> position; // the color to be displayed for this HalfEdge
     std::vector<GLint> idx;
 
     // Get the before and after points and add them to position
-    position.push_back(glm::vec4(he_to_disp->vert->pos,1));
-    position.push_back(glm::vec4(he_to_disp->heSym->vert->pos,1));
+    if (this->position.empty()) // if displaying a half edge and not a bone
+    {
+        position.push_back(glm::vec4(he_to_disp->vert->pos,1));
+        position.push_back(glm::vec4(he_to_disp->heSym->vert->pos,1));
+    } // else display the bone
 
     color.push_back(glm::vec4(1,0,0,1));
     color.push_back(glm::vec4(1,1,0,1));
@@ -40,6 +43,8 @@ void HalfEdgeDisplay::create()
     generateCol();
     mp_context->glBindBuffer(GL_ARRAY_BUFFER, bufCol);
     mp_context->glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec4), color.data(), GL_STATIC_DRAW);
+
+    position.clear(); // need to clear this in case it is a half edge and not a bone
 }
 
 void HalfEdgeDisplay::updateHalfEdge(HalfEdge* he)

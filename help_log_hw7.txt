@@ -37,3 +37,6 @@ Evan Grant discussed with me how I should get the tree widget items to show up
 on the tree widget. I was forgetting to set text. Him and Ankit Billa also
 informed me that loading in a JSON should be a recursive process, so I had 
 to study up how to do recursion because that is new for me.
+
+I had a very difficult time with this homework and where to begin for a lot of it.
+Evan Grant and Benedict Florence helped answer several of my confusions.

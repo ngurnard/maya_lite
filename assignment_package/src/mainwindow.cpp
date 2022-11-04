@@ -22,10 +22,11 @@ MainWindow::MainWindow(QWidget *parent) :
     // Connect the json button to import a .json file
     connect(ui->loadJSONButton, SIGNAL(clicked(bool)), ui->mygl, SLOT(slot_loadJson()));
 
-    // Connect to the gui the functiuons for selecing faces, verts, and halfEdges
+    // Connect to the gui the functiuons for selecing faces, verts, and halfEdges, and joints
     connect(ui->vertsListWidget, SIGNAL(itemClicked(QListWidgetItem*)), ui->mygl, SLOT(slot_selectVertex(QListWidgetItem*)));
     connect(ui->facesListWidget, SIGNAL(itemClicked(QListWidgetItem*)), ui->mygl, SLOT(slot_selectFace(QListWidgetItem*)));
     connect(ui->halfEdgesListWidget, SIGNAL(itemClicked(QListWidgetItem*)), ui->mygl, SLOT(slot_selectHE(QListWidgetItem*)));
+    connect(ui->jointTree, SIGNAL(itemClicked(QTreeWidgetItem*, int)), ui->mygl, SLOT(slot_selectJoint(QTreeWidgetItem*)));
 
     // Connect the selected faces, verts, and halfEdges to the gui list widget
     connect(ui->mygl, SIGNAL(sig_sendMesh(Mesh*)), this, SLOT(slot_addToListWidget(Mesh*)));

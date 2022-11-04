@@ -10,6 +10,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include "halfedge_display.h"
 
 MyGL::MyGL(QWidget *parent)
     : OpenGLContext(parent),
@@ -21,10 +22,11 @@ MyGL::MyGL(QWidget *parent)
       mp_selected_face(nullptr), // member pointer to the selected half-edge
       // Mouse click events
       mp_selected_halfEdge(nullptr),
+      mp_selected_joint(nullptr),
+      m_wireframe(this),
       m_vertDisplay(this),
       m_faceDisplay(this),
-      m_heDisplay(this),
-      m_wireframe(this)
+      m_heDisplay(this)
 {
     setFocusPolicy(Qt::StrongFocus);
 }
@@ -312,12 +314,35 @@ void MyGL::slot_loadJson()
 }
 
 void MyGL::traverseSkeleton(uPtr<Joint> &j, glm::mat4 T){
+
+    if (j->parent) // draw the bones
+    {
+        // display the bone in the skeleton
+        HalfEdgeDisplay bone(this);
+        bone.position.push_back(glm::vec4(j->parent->getOverallTransformation()[3]));
+        bone.position.push_back(glm::vec4(j->getOverallTransformation()[3]));
+        bone.create();
+        m_progFlat.setModelMatrix(glm::mat4(1.f));
+        m_progFlat.draw(bone);
+    }
+
     T = j->getOverallTransformation();
 
     for (auto& child : j->children){
         traverseSkeleton(child, T);
     }
-    if (j->geom){
+
+    if (j->geom)
+    {
+        if (j.get() == mp_selected_joint)
+        {
+            j->geom->highlighted = true;
+            j->geom->create();
+        } else {
+            j->geom->highlighted = false;
+            j->geom->create();
+        }
+
         m_progFlat.setModelMatrix(T);
         m_progFlat.draw(*(j->geom));
     }
@@ -360,6 +385,20 @@ void MyGL::slot_selectHE(QListWidgetItem *i)
     this->mp_selected_halfEdge = static_cast<HalfEdge*>(i);
     m_heDisplay.updateHalfEdge(mp_selected_halfEdge);
     m_heDisplay.create();
+    this->update();
+
+    emit sig_setFocus();
+}
+
+void MyGL::slot_selectJoint(QTreeWidgetItem *i)
+{
+    // Make it so only the selected displays
+    this->mp_selected_vertex = NULL;
+    this->mp_selected_face = NULL;
+    this->mp_selected_halfEdge = NULL;
+
+    this->mp_selected_joint = static_cast<Joint*>(i);
+//    m_wireframe.create();
     this->update();
 
     emit sig_setFocus();
