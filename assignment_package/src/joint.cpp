@@ -20,6 +20,11 @@ Joint::Joint(QString name, Joint* parent, glm::vec3 pos, glm::quat rot)
     QTreeWidgetItem::setText(0, name);
 };
 
+//Joint(const Joint &j) // copy constructor
+//{
+
+//}
+
 glm::mat4 Joint::getLocalTransformation()
 {
     glm::mat4 trans = glm::translate(glm::mat4(1.0f), this->pos); // translate this joint to the the same space as the parent

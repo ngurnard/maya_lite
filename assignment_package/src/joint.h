@@ -33,6 +33,7 @@ public:
     Joint(); // default constructor
     Joint(QString name);
     Joint(QString name, Joint* parent, glm::vec3 pos, glm::quat rot); // default constructor
+//    Joint(const Joint &j); // copy constructor
 
     glm::mat4 getLocalTransformation(); // represents the concatenation of a joint's position and rotation.
     glm::mat4 getOverallTransformation(); // represents the concatentation of this joint's local transformation with the transformations of its chain of parent joints.

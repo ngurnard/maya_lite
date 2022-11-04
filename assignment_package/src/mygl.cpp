@@ -104,7 +104,7 @@ void MyGL::paintGL()
 
     m_progFlat.setViewProjMatrix(m_glCamera.getViewProj());
     m_progLambert.setViewProjMatrix(m_glCamera.getViewProj());
-//    m_progSkeleton.setViewProjMatrix(m_glCamera.getViewProj()); // THIS IS GIVING AN ERROR???
+    m_progSkeleton.setViewProjMatrix(m_glCamera.getViewProj());
 
     m_progLambert.setCamPos(m_glCamera.eye);
 
@@ -125,8 +125,11 @@ void MyGL::paintGL()
     // if the skeleton is bound (skinning), then use the shader for the skeleton instead of simply drawing the cow with lambert
     if (m_mesh.bound_to_skeleton) {
         std::cout << "I am drawing the skeleton VBO STUFF" << std::endl;
+        // TODO: Recompute m_mesh.skeletonOverallTransforms
+        m_mesh.skeletonOverallTransforms.clear(); // clear the previous overall transforms
+        m_mesh.updateOverallTransforms(); // update the overall transformations
         m_progSkeleton.setOverallTransforms(m_mesh.skeletonOverallTransforms);
-        m_progSkeleton.setBindMats(m_mesh.skeletonBindMats);
+        // m_progSkeleton.setBindMats(m_mesh.skeletonBindMats); // DO NOT UPDATE THE BIND MATRICES
         m_progSkeleton.draw(m_mesh);
     } else {
         std::cout << "I am drawing the skeleton standard cow lambert VBO" << std::endl;
@@ -527,7 +530,7 @@ void MyGL::slot_modJointRotXPos()
 {
     if (mp_selected_joint != nullptr)
     {
-        this->mp_selected_joint->rot *= glm::angleAxis(glm::radians(5.f), glm::vec3(1, 0, 0));
+        this->mp_selected_joint->rot = glm::angleAxis(glm::radians(5.f), glm::vec3(1, 0, 0)) * this->mp_selected_joint->rot;
         this->update();
     }
 
@@ -538,7 +541,7 @@ void MyGL::slot_modJointRotYPos()
 {
     if (mp_selected_joint != nullptr)
     {
-        this->mp_selected_joint->rot *= glm::angleAxis(glm::radians(5.f), glm::vec3(0, 1, 0));
+        this->mp_selected_joint->rot = glm::angleAxis(glm::radians(5.f), glm::vec3(0, 1, 0)) * this->mp_selected_joint->rot;
         this->update();
     }
 
@@ -549,7 +552,7 @@ void MyGL::slot_modJointRotZPos()
 {
     if (mp_selected_joint != nullptr)
     {
-        this->mp_selected_joint->rot *= glm::angleAxis(glm::radians(5.f), glm::vec3(0, 0, 1));
+        this->mp_selected_joint->rot = glm::angleAxis(glm::radians(5.f), glm::vec3(0, 0, 1)) * this->mp_selected_joint->rot;
         this->update();
     }
 
@@ -646,7 +649,7 @@ void MyGL::slot_skinning()
     {
         std::cout << "skinning..." << std::endl;
         m_mesh.bindToSkeleton(this->m_skeleton_root.get());
-//        emit sig_sendMesh(&m_mesh);
+        m_progSkeleton.setBindMats(m_mesh.skeletonBindMats); // ONLY SET THE BIND MATRICES ONCE
         this->m_mesh.destroy();
         this->m_mesh.create();
         this->update();

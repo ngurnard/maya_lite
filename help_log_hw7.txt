@@ -49,6 +49,11 @@ Honestly I still dont know. I am very confused why it isnt working
 https://stackoverflow.com/questions/15722803/opengl-shader-error-1282
 I figured it out! I had a tiny typo that was ignored for some reason
 
+Question 9
+How do I set a float to infinity?
+Answer (Nov 4, 14:47)
+https://stackoverflow.com/questions/8690567/setting-an-int-to-infinity-in-c
+
 ----------------------------------------------------------------------
 COLLABORATORS
 ----------------------------------------------------------------------
@@ -59,3 +64,11 @@ to study up how to do recursion because that is new for me.
 
 I had a very difficult time with this homework and where to begin for a lot of it.
 Evan Grant and Benedict Florence helped answer several of my confusions.
+
+
+TODO
+normalize weights (mesh)
+ensure weights are assigned correctly (mesh)
+reompute the overall trasnforms (mygl and mesh)
+DONT recompute the bind matrices (mygl and mesh)
+seee what is going on with the quaternion multiplication: DONE

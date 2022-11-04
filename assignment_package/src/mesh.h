@@ -46,5 +46,6 @@ public:
     void smoothOGVerts(std::vector<Vertex*> &og_verts, std::unordered_map<Face*, Vertex*> &centroidMap);
     void quadrangulate(std::unordered_map<Face*, Vertex*> &centroidMap);
     void bindToSkeleton(Joint *root);
-    void getSkeletonJoints(Joint *root);
+    void skinSkeleton(Joint *root);
+    void updateOverallTransforms();
 };

@@ -10,8 +10,6 @@ uniform mat4[30] u_overallTransforms; // the overall transforms for each joint
 in vec2 jointWeights; // the 2 joint weights that correspong to the nearest joints
 in ivec2 jointIDs; // the 2 nearest jointIDs
 
-uniform mat4 viewProj;
-
 in vec4 vs_Pos;
 in vec4 vs_Col;
 //in vec4 vs_Nor;
@@ -24,8 +22,8 @@ void main(void)
 {
     // glUniformMatrix4fv lets you specify the number of mat4s to pass in
 
-    mat4 bind1 = u_bindMats[jointIDs[0]];
-    mat4 bind2 = u_bindMats[jointIDs[1]];
+    mat4 bind1 = u_bindMats[jointIDs[0]]; // closest
+    mat4 bind2 = u_bindMats[jointIDs[1]]; // second closest
 
     mat4 T1 = u_overallTransforms[jointIDs[0]];
     mat4 T2 = u_overallTransforms[jointIDs[1]];
@@ -38,16 +36,21 @@ void main(void)
 
     // Dont forget to apply the model transofmration
     vec4 modelPosition = u_Model * blend; // takes us from model coordinates to world coordinates
-    gl_Position = viewProj * modelPosition;
+    gl_Position = u_ViewProj * modelPosition; // use vs_pos instead to debug??
+//    gl_Position = u_ViewProj * vs_Pos; // keeping for debugging
 
     // color to pass to the fragment shader
     fs_Col = vs_Col;
+//    fs_Col = vec4(0, jointWeights[1], 0, 1); // keeping for future knowledge of debugging
+//    fs_Col = vec4(jointIDs[0]/13.f, 0, 0, 1);
+//    fs_Col = 0.5 * (bind1[3] + 1);
+//    fs_Col = 0.5 * (bind2[3] + 1);
+//    fs_Col = 0.5 * (T1[3] + 1);
 
     // surface normals -- only if doing lambert shading?
     // inverse scale
     // same rotate
     // inverse then transpose
-
 //    vec3 nor1 = normalize(transpose(inverse(mat3(T1))) * mat3(bind1) * vs_Nor.xyz);
 //    vec3 nor2 = normalize(transpose(inverse(mat3(T2))) * mat3(bind2) * vs_Nor.xyz);
 //    fs_Nor = mix(nor1, nor2, jointWeights[0]);

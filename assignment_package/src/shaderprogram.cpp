@@ -63,8 +63,8 @@ void ShaderProgram::create(const char *vertfile, const char *fragfile)
     attrPos = context->glGetAttribLocation(prog, "vs_Pos");
     attrNor = context->glGetAttribLocation(prog, "vs_Nor");
     attrCol = context->glGetAttribLocation(prog, "vs_Col");
-    attrWeights = context->glGetAttribLocation(prog, "vs_Weights");
-    attrJointIDs = context->glGetAttribLocation(prog, "vs_JointIDs");
+    attrWeights = context->glGetAttribLocation(prog, "jointWeights");
+    attrJointIDs = context->glGetAttribLocation(prog, "jointIDs");
 
     unifModel      = context->glGetUniformLocation(prog, "u_Model");
     unifModelInvTr = context->glGetUniformLocation(prog, "u_ModelInvTr");
@@ -285,7 +285,7 @@ void ShaderProgram::setOverallTransforms(const std::vector<glm::mat4> &overallTr
                     // Transpose the matrix? OpenGL uses column-major, so no.
                        GL_FALSE,
                     // Pointer to the first element of the matrix
-                       &overallTransforms[0][0][0]);
+                       &(overallTransforms[0][0][0]));
     }
 }
 void ShaderProgram::setBindMats(const std::vector<glm::mat4> &bindMats) {
@@ -301,6 +301,6 @@ void ShaderProgram::setBindMats(const std::vector<glm::mat4> &bindMats) {
                     // Transpose the matrix? OpenGL uses column-major, so no.
                        GL_FALSE,
                     // Pointer to the first element of the matrix
-                       &bindMats[0][0][0]);
+                       &(bindMats[0][0][0]));
     }
 }
