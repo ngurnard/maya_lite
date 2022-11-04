@@ -222,6 +222,9 @@ void Mesh::create()
     std::vector<glm::vec4> normal;
     std::vector<glm::vec4> color;
 
+    std::vector<glm::vec2> weights; // for skinning
+    std::vector<glm::ivec2> jointIDs; // for skinning
+
     int totVerts = 0; // initialize the total amount of vertices
     for (const auto &face : this->faces) // for each face
     {
@@ -238,6 +241,13 @@ void Mesh::create()
                 const glm::vec3 line1 = curr->vert->pos - (curr->heSym->vert->pos);
                 const glm::vec3 line2 = curr->heNext->vert->pos - curr->heNext->heSym->vert->pos;
                 normal.push_back(glm::vec4(glm::cross(line1, line2), 1));
+
+                // Add the skinning business for the skeleton shader
+                if (this->bound_to_skeleton)
+                {
+                    weights.push_back(glm::vec2(curr->vert->joint_influence[0].first, curr->vert->joint_influence[1].first));
+                    jointIDs.push_back(glm::ivec2(curr->vert->joint_influence[0].second->id, curr->vert->joint_influence[1].second->id));
+                }
 
                 // Update the current half edge to the next half edge
                 curr = curr->heNext; // get the next half edge
@@ -284,6 +294,16 @@ void Mesh::create()
     generateCol();
     mp_context->glBindBuffer(GL_ARRAY_BUFFER, bufCol);
     mp_context->glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec4), color.data(), GL_STATIC_DRAW);
+
+    // skinning VBO stuff
+    generateWeights();
+    mp_context->glBindBuffer(GL_ARRAY_BUFFER, bufWeights);
+    mp_context->glBufferData(GL_ARRAY_BUFFER, weights.size() * sizeof(glm::vec2), weights.data(), GL_STATIC_DRAW);
+
+    generateJointIDs();
+    mp_context->glBindBuffer(GL_ARRAY_BUFFER, bufJointIDs);
+    mp_context->glBufferData(GL_ARRAY_BUFFER, jointIDs.size() * sizeof(glm::ivec2), jointIDs.data(), GL_STATIC_DRAW);
+
 
     // Free up memory now that we no longer need the vertex info to be stored on the CPU
     idx.clear();
@@ -635,6 +655,8 @@ void Mesh::bindToSkeleton(Joint *root) // skinning function
         }
 
     }
+
+    this->bound_to_skeleton = true; // set the binding to true for the create function
 }
 
 void Mesh::getSkeletonJoints(Joint *jj)
@@ -644,6 +666,8 @@ void Mesh::getSkeletonJoints(Joint *jj)
     jj->bindMat = glm::inverse(jj->getOverallTransformation()); // the overall transform at the time of the skinning
 
     skeletonJoints.push_back(jj); // put in the joints list for finding nearest neighbors
+    skeletonBindMats.push_back(jj->bindMat); // store the bind matrices so we can draw the skinning VBO later
+    skeletonOverallTransforms.push_back(jj->getOverallTransformation()); // store the overall transofrms for the skinning VBO later
 
     for (auto& child : jj->children){
         getSkeletonJoints(child.get());

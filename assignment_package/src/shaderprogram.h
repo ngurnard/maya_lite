@@ -18,11 +18,15 @@ public:
     int attrPos; // A handle for the "in" vec4 representing vertex position in the vertex shader
     int attrNor; // A handle for the "in" vec4 representing vertex normal in the vertex shader
     int attrCol; // A handle for the "in" vec4 representing vertex color in the vertex shader
+    int attrWeights; // A handle for the "in" vec4 representing the vertex weights for skinning
+    int attrJointIDs; // A handle for the "in" vec4 representing the vertex joint IDs for skinning
 
     int unifModel; // A handle for the "uniform" mat4 representing model matrix in the vertex shader
     int unifModelInvTr; // A handle for the "uniform" mat4 representing inverse transpose of the model matrix in the vertex shader
     int unifViewProj; // A handle for the "uniform" mat4 representing combined projection and view matrices in the vertex shader
     int unifCamPos; // A handle for the "uniform" vec4 representing color of geometry in the vertex shader
+    int unifBindMats;// A handle for the "uniform" mat4s representing the bind matrices of each vertex in the skeleton vertex shader for skinning
+    int unifOverallTransforms;// A handle for the "uniform" mat4s representing the overall transforms of each joint in the skeleton vertex shader for skinning
 
 public:
     ShaderProgram(OpenGLContext* context);
@@ -46,6 +50,10 @@ public:
     void printLinkInfoLog(int prog);
 
     QString qTextFileRead(const char*);
+
+    // skinning functions
+    void setBindMats(const std::vector<glm::mat4> &bindMats);
+    void setOverallTransforms(const std::vector<glm::mat4> &overallTransforms);
 
 private:
     OpenGLContext* context;   // Since Qt's OpenGL support is done through classes like QOpenGLFunctions_3_2_Core,

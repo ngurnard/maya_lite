@@ -63,11 +63,15 @@ void ShaderProgram::create(const char *vertfile, const char *fragfile)
     attrPos = context->glGetAttribLocation(prog, "vs_Pos");
     attrNor = context->glGetAttribLocation(prog, "vs_Nor");
     attrCol = context->glGetAttribLocation(prog, "vs_Col");
+    attrWeights = context->glGetAttribLocation(prog, "vs_Weights");
+    attrJointIDs = context->glGetAttribLocation(prog, "vs_JointIDs");
 
     unifModel      = context->glGetUniformLocation(prog, "u_Model");
     unifModelInvTr = context->glGetUniformLocation(prog, "u_ModelInvTr");
     unifViewProj   = context->glGetUniformLocation(prog, "u_ViewProj");
     unifCamPos      = context->glGetUniformLocation(prog, "u_CamPos");
+    unifBindMats = context->glGetUniformLocation(prog, "u_bindMats");
+    unifOverallTransforms = context->glGetUniformLocation(prog, "u_overallTransforms");
 }
 
 void ShaderProgram::useMe()
@@ -167,6 +171,16 @@ void ShaderProgram::draw(Drawable &d)
         context->glVertexAttribPointer(attrCol, 4, GL_FLOAT, false, 0, nullptr);
     }
 
+    if (attrWeights != -1 && d.bindWeights()) {
+        context->glEnableVertexAttribArray(attrWeights);
+        context->glVertexAttribPointer(attrWeights, 2, GL_FLOAT, false, 0, nullptr);
+    }
+
+    if (attrJointIDs != -1 && d.bindJointIDs()) {
+        context->glEnableVertexAttribArray(attrJointIDs);
+        context->glVertexAttribIPointer(attrJointIDs, 2, GL_INT, 0, nullptr);
+    }
+
     // Bind the index buffer and then draw shapes from it.
     // This invokes the shader program, which accesses the vertex buffers.
     d.bindIdx();
@@ -175,6 +189,8 @@ void ShaderProgram::draw(Drawable &d)
     if (attrPos != -1) context->glDisableVertexAttribArray(attrPos);
     if (attrNor != -1) context->glDisableVertexAttribArray(attrNor);
     if (attrCol != -1) context->glDisableVertexAttribArray(attrCol);
+    if (attrWeights != -1) context->glDisableVertexAttribArray(attrWeights);
+    if (attrJointIDs != -1) context->glDisableVertexAttribArray(attrJointIDs);
 
     context->printGLErrorLog();
 }
@@ -252,5 +268,39 @@ void ShaderProgram::printLinkInfoLog(int prog)
         context->glGetProgramInfoLog(prog, infoLogLen, &charsWritten, infoLog);
         qDebug() << "LinkInfoLog:" << "\n" << infoLog << "\n";
         delete [] infoLog;
+    }
+}
+
+// skinning functions
+void ShaderProgram::setOverallTransforms(const std::vector<glm::mat4> &overallTransforms) {
+    // Tell OpenGL to use this shader program for subsequent function calls
+    useMe();
+
+    if(unifOverallTransforms != -1) {
+    // Pass a 4x4 matrix into a uniform variable in our shader
+                    // Handle to the matrix variable on the GPU
+    context->glUniformMatrix4fv(unifOverallTransforms,
+                    // How many matrices to pass
+                       overallTransforms.size(),
+                    // Transpose the matrix? OpenGL uses column-major, so no.
+                       GL_FALSE,
+                    // Pointer to the first element of the matrix
+                       &overallTransforms[0][0][0]);
+    }
+}
+void ShaderProgram::setBindMats(const std::vector<glm::mat4> &bindMats) {
+    // Tell OpenGL to use this shader program for subsequent function calls
+    useMe();
+
+    if(unifBindMats != -1) {
+    // Pass a 4x4 matrix into a uniform variable in our shader
+                    // Handle to the matrix variable on the GPU
+    context->glUniformMatrix4fv(unifBindMats,
+                    // How many matrices to pass
+                       bindMats.size(),
+                    // Transpose the matrix? OpenGL uses column-major, so no.
+                       GL_FALSE,
+                    // Pointer to the first element of the matrix
+                       &bindMats[0][0][0]);
     }
 }

@@ -41,6 +41,14 @@ How do I get the pair out of a map as a pair?
 Answer (Nov 4 2:42)
 https://stackoverflow.com/questions/33206767/how-to-get-the-pointer-to-a-pair-in-stdmap
 
+Question 8
+I am getting errors I cannot debug, such as "OpenGL error 1282: GL_INVALID_OPERATION"
+What is that and how do I fix it?
+Answer (Nov 4, 13:00)
+Honestly I still dont know. I am very confused why it isnt working
+https://stackoverflow.com/questions/15722803/opengl-shader-error-1282
+I figured it out! I had a tiny typo that was ignored for some reason
+
 ----------------------------------------------------------------------
 COLLABORATORS
 ----------------------------------------------------------------------

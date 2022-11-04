@@ -16,6 +16,10 @@ private:
 
 public:
 
+    bool bound_to_skeleton = false; // a bool to say if skinning has occured
+    std::vector<glm::mat4> skeletonBindMats; // skeleton bindMats are obtained with helper function getSkeletonJoints
+    std::vector<glm::mat4> skeletonOverallTransforms; // skeleton bindMats are obtained with helper function getSkeletonJoints
+
     // Constructors/Destructors
     Mesh(OpenGLContext* context); // default constructor
 

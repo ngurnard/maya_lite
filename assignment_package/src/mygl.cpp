@@ -15,7 +15,7 @@
 MyGL::MyGL(QWidget *parent)
     : OpenGLContext(parent),
       m_geomSquare(this),
-      m_progLambert(this), m_progFlat(this),
+      m_progLambert(this), m_progFlat(this), m_progSkeleton(this),
       m_glCamera(),
       m_mesh(this), // initialize the mesh
       mp_selected_vertex(nullptr), // member pointer to the selected face
@@ -71,6 +71,8 @@ void MyGL::initializeGL()
     m_progLambert.create(":/glsl/lambert.vert.glsl", ":/glsl/lambert.frag.glsl");
     // Create and set up the flat lighting shader
     m_progFlat.create(":/glsl/flat.vert.glsl", ":/glsl/flat.frag.glsl");
+    // Create and set up the skinning shader
+    m_progSkeleton.create(":/glsl/skeleton.vert.glsl", ":/glsl/skeleton.frag.glsl");
 
     // We have to have a VAO bound in OpenGL 3.2 Core. But if we're not
     // using multiple VAOs, we can just bind one once.
@@ -88,6 +90,7 @@ void MyGL::resizeGL(int w, int h)
 
     m_progLambert.setViewProjMatrix(viewproj);
     m_progFlat.setViewProjMatrix(viewproj);
+    m_progSkeleton.setViewProjMatrix(viewproj);
 
     printGLErrorLog();
 }
@@ -101,8 +104,9 @@ void MyGL::paintGL()
 
     m_progFlat.setViewProjMatrix(m_glCamera.getViewProj());
     m_progLambert.setViewProjMatrix(m_glCamera.getViewProj());
+//    m_progSkeleton.setViewProjMatrix(m_glCamera.getViewProj()); // THIS IS GIVING AN ERROR???
+
     m_progLambert.setCamPos(m_glCamera.eye);
-    m_progFlat.setModelMatrix(glm::mat4(1.f));
 
     //Create a model matrix. This one rotates the square by PI/4 radians then translates it by <-2,0,0>.
     //Note that we have to transpose the model matrix before passing it to the shader
@@ -113,9 +117,21 @@ void MyGL::paintGL()
     //Send the geometry's transformation matrix to the shader
     m_progLambert.setModelMatrix(model);
     m_progFlat.setModelMatrix(model);
+    m_progSkeleton.setModelMatrix(model);
     //Draw the example sphere using our lambert shader
     //m_progLambert.draw(m_geomSquare);
-    m_progLambert.draw(m_mesh);
+//    m_progLambert.draw(m_mesh);
+
+    // if the skeleton is bound (skinning), then use the shader for the skeleton instead of simply drawing the cow with lambert
+    if (m_mesh.bound_to_skeleton) {
+        std::cout << "I am drawing the skeleton VBO STUFF" << std::endl;
+        m_progSkeleton.setOverallTransforms(m_mesh.skeletonOverallTransforms);
+        m_progSkeleton.setBindMats(m_mesh.skeletonBindMats);
+        m_progSkeleton.draw(m_mesh);
+    } else {
+        std::cout << "I am drawing the skeleton standard cow lambert VBO" << std::endl;
+        m_progLambert.draw(m_mesh);
+    }
 
     // Draw the vertices, faces, and halfedges selected
     glDisable(GL_DEPTH_TEST); // draw on top of mesh's triangles
@@ -625,6 +641,7 @@ void MyGL::slot_subdivide()
 
 void MyGL::slot_skinning()
 {
+    m_mesh.bound_to_skeleton = false; // in case we want to reskin
     if (this->m_skeleton_root != NULL) // the the json is loaded in
     {
         std::cout << "skinning..." << std::endl;

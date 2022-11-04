@@ -26,20 +26,20 @@ out vec4 out_Col; // This is the final output color that you will see on your
 void main()
 {
     // Material base color (before shading)
-        vec4 diffuseColor = fs_Col;
+    vec4 diffuseColor = fs_Col;
 
-        // Calculate the diffuse term for Lambert shading
-        vec3 lightVec = normalize(u_CamPos - fs_Pos);
-        float diffuseTerm = dot(normalize(fs_Nor.xyz), normalize(lightVec));
-        // Avoid negative lighting values
-        diffuseTerm = clamp(diffuseTerm, 0, 1);
+    // Calculate the diffuse term for Lambert shading
+    vec3 lightVec = normalize(u_CamPos - fs_Pos);
+    float diffuseTerm = dot(normalize(fs_Nor.xyz), normalize(lightVec));
+    // Avoid negative lighting values
+    diffuseTerm = clamp(diffuseTerm, 0, 1);
 
-        float ambientTerm = 0.2;
+    float ambientTerm = 0.2;
 
-        float lightIntensity = diffuseTerm + ambientTerm;   //Add a small float value to the color multiplier
-                                                            //to simulate ambient lighting. This ensures that faces that are not
-                                                            //lit by our point light are not completely black.
+    float lightIntensity = diffuseTerm + ambientTerm;   //Add a small float value to the color multiplier
+                                                        //to simulate ambient lighting. This ensures that faces that are not
+                                                        //lit by our point light are not completely black.
 
-        // Compute final shaded color
-        out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);
+    // Compute final shaded color
+    out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);
 }
